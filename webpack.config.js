@@ -5,7 +5,7 @@ module.exports = {
     mode,
     entry: './src/index.ts',
     output: {
-        filename: 'index.js',
+        filename: 'main.js',
         path: path.resolve(__dirname)
     },
     module: {
@@ -22,6 +22,6 @@ module.exports = {
     },
     devtool: 'source-map',
     devServer: {
-        static: './dist'
+        static: '.'
     }
 }
