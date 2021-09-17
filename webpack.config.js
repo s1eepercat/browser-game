@@ -5,8 +5,8 @@ module.exports = {
     mode,
     entry: './src/index.ts',
     output: {
-        filename: 'main.js',
-        path: path.resolve(__dirname)
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
     },
     module: {
         rules: [
@@ -22,6 +22,6 @@ module.exports = {
     },
     devtool: 'source-map',
     devServer: {
-        static: '.'
+        static: './dist'
     }
 }
