@@ -1,17 +1,23 @@
-import { TEST } from './test';
-import { TEST_2 } from './test';
-import { TestEnum } from './types';
+import { Colors } from "./enums/colors.enum";
 
-(() => {
-    const some = { a: TEST };
-    const someTwo = { ...some };
-    console.log(someTwo);
-})();
+const gameScreen = document.getElementById('game-screen');
 
-console.log(TEST_2);
+let canvas, ctx;
 
-const testTypescript = {
-    test: TestEnum.Hello
-};
+function init(): void {
+    canvas = document.getElementById('canvas') as any; // give proper type
+    ctx = canvas.getContext('2d');
 
-console.log(testTypescript);
+    canvas.width = canvas.height = 600;
+
+    ctx.fillStyle = Colors.BgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    document.addEventListener('keydown', keydown);
+}
+
+function keydown(e: KeyboardEvent): void {
+    console.log(e.keyCode);
+}
+
+init();
