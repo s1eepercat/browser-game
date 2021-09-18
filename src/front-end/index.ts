@@ -2,25 +2,28 @@
 // import { GameStateDto } from "./models/game-state-dto.model";
 import { Controller } from "./controller";
 import { Renderer } from "./renderer";
-import { State } from "./state";
 
 // const gameScreen = document.getElementById('game-screen');
 
 const renderer = Renderer.getInstance();
 const controller = Controller.getInstance();
-const state = State.getInstance();
 
-state.init();
 renderer.init();
 controller.init();
 
-renderer.renderGame(state.getState());
+// renderer.renderGame(state.getState()); 
 
 //@ts-ignore
 const socket = io('/');
 
-socket.on('init', handleInit);
+socket.on('connected', handleInit);
+socket.on('gameState', handleGameState);
 
 function handleInit(msg: any): void {
     console.log(msg);
+}
+
+function handleGameState(gameState: any) {
+    gameState = JSON.parse(gameState);
+    requestAnimationFrame(() => renderer.renderGame(gameState))
 }

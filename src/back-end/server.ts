@@ -1,19 +1,63 @@
 import * as express from 'express';
+import { State } from './state';
+import { Flow } from './flow';
 
-const app = express();
-const http = require('http').Server(app)
-const io = require('socket.io')(http);
+class Server {
+    private static instance: typeof Server.prototype;
 
-const port = process.env.PORT || 3000;
+    public static getInstance(): typeof Server.prototype {
+        if (!Server.instance) {
+            Server.instance = new Server();
+        }
 
-app.use('/', express.static('public'));
+        return Server.instance;
+    }
 
-io.on('connection', (client: any) => {
-    client.emit('init', { data: 'hello world' });
+    private _players = 0;
 
-    console.log(`A user connected: ${client.name}`);
+    constructor() { }
 
-    client.on('disconnect', () => console.log('user disconnected.'));
-});
+    init(): void {
+        const app = express();
+        const http = require('http').Server(app)
+        const io = require('socket.io')(http);
+        const port = process.env.PORT || 3000;
 
-http.listen(port, () => console.log(`Server is on, port ${port}.`));
+        app.use('/', express.static('public'));
+
+        const state = State.getInstance();
+        state.iniState();
+
+        const flow = Flow.getInstance();
+        flow.initGameInterval();
+
+        http.listen(port, () => console.log(`Server is on, port ${port}.`));
+
+        io.on('connection', onConnect);
+    }
+
+    get playerCount(): number {
+        return this._players;
+    }
+
+    set playerCount(num: number) {
+        this._players = num;
+    }
+}
+
+const server = Server.getInstance()
+server.init();
+
+function onConnect(client: any): void {
+    server.playerCount++;
+    client.on('disconnect', onDisconnect);
+
+    client.emit('connected', `player count: ${server.playerCount}`);
+    
+    console.log(`Player connected, current players: ${server.playerCount}`);
+}
+
+function onDisconnect(): void {
+    server.playerCount--;
+    console.log(`Player disconnected, players left: ${server.playerCount}`);
+}

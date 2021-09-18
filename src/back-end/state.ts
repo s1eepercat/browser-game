@@ -1,21 +1,46 @@
 import { GameStateDto } from "../shared/models/game-state-dto.model";
+import { ServerConfig } from "./consts/server-config.const";
 
-export const state: GameStateDto = {
-    player: {
-        pos: {
-            x: 5,
-            y: 10,
-        },
-        vel: {
-            x: 0,
-            y: 0
+export class State {
+    private static instance: typeof State.prototype;
+
+    public static getInstance(): typeof State.prototype {
+        if (!State.instance) {
+            State.instance = new State();
         }
-    },
-    food: [
-        {
-            x: 7,
-            y: 7
+
+        return State.instance;
+    }
+
+    private state: GameStateDto;
+
+    constructor() {
+
+    }
+
+    iniState(): void {
+        this.state = {
+            player: {
+                pos: {
+                    x: 5,
+                    y: 10,
+                },
+                vel: {
+                    x: 0,
+                    y: 0
+                }
+            },
+            food: [
+                {
+                    x: 7,
+                    y: 7
+                }
+            ],
+            gridSize: ServerConfig.GridSize
         }
-    ],
-    gridSize: 20
+    }
+
+    getState(): GameStateDto {
+        return this.state;
+    }
 }
