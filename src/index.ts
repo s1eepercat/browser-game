@@ -1,23 +1,17 @@
-import { Colors } from "./enums/colors.enum";
+// import { Colors } from "./enums/colors.enum";
+// import { GameStateDto } from "./models/game-state-dto.model";
+import { Controller } from "./controller";
+import { Renderer } from "./renderer";
+import { State } from "./state";
 
-const gameScreen = document.getElementById('game-screen');
+// const gameScreen = document.getElementById('game-screen');
 
-let canvas, ctx;
+const renderer = Renderer.getInstance();
+const controller = Controller.getInstance();
+const state = State.getInstance();
 
-function init(): void {
-    canvas = document.getElementById('canvas') as any; // give proper type
-    ctx = canvas.getContext('2d');
+state.init();
+renderer.init();
+controller.init();
 
-    canvas.width = canvas.height = 600;
-
-    ctx.fillStyle = Colors.BgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    document.addEventListener('keydown', keydown);
-}
-
-function keydown(e: KeyboardEvent): void {
-    console.log(e.keyCode);
-}
-
-init();
+renderer.renderGame(state.getState());
