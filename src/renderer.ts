@@ -27,12 +27,12 @@ export class Renderer {
     }
 
     renderGame(state: GameStateDto): void {
-        this.renderWorld();
+        this.renderWorld(state);
         this.renderFood(state);
-        //     paintPlayer()
+        this.renderPlayer(state);
     }
 
-    private renderWorld(): void {
+    private renderWorld(state: GameStateDto): void {
         this.ctx.fillStyle = Colors.BgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -42,11 +42,19 @@ export class Renderer {
 
     private renderFood(state: GameStateDto): void {
         const food = state.food[0];
-        const gridSize = state.gridSize;
-        const sizeW = this.canvas.width / gridSize;
-        const sizeH = this.canvas.height / gridSize;
+        const sizeW = this.canvas.width / state.gridSize;
+        const sizeH = this.canvas.height / state.gridSize;
 
         this.ctx.fillStyle = Colors.ItemColor;
         this.ctx.fillRect(food.x * sizeW, food.y * sizeH, sizeW, sizeH);
+    }
+
+    private renderPlayer(state: GameStateDto): void {
+        const player = state.player;
+        const sizeW = this.canvas.width / state.gridSize;
+        const sizeH = this.canvas.height / state.gridSize;
+
+        this.ctx.fillStyle = Colors.PlayerColor;
+        this.ctx.fillRect(player.pos.x * sizeW, player.pos.y * sizeH, sizeW, sizeH);
     }
 }
