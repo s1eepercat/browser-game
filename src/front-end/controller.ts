@@ -9,31 +9,50 @@ export class Controller {
         return Controller.instance;
     }
 
-    private readonly validKeys = [87, 83, 65, 68];
-    // 87 = W
-    // 65 = A
-    // 68 = D
-    // 83 = S
-
     constructor() { }
 
     init(socket: any): void {
+        let left = 0;
+        let right = 0;
+        let up = 0;
+        let down = 0;
+
         document.addEventListener('keydown', (event) => {
-            if (this.validKeys.includes(event.keyCode)) {
-                socket.emit('input', {
-                    type: 'keydown',
-                    keyCode: event.keyCode
-                })
+            switch (event.key) {
+                case 'a':
+                    left = -1;
+                    break;
+                case 'd':
+                    right = 1;
+                    break;
+                case 'w':
+                    up = -1;
+                    break;
+                case 's':
+                    down = 1;
+                    break;
             }
+
+            socket.emit('input', { x: left + right, y: up + down });
         });
 
         document.addEventListener('keyup', (event) => {
-            if (this.validKeys.includes(event.keyCode)) {
-                socket.emit('input', {
-                    type: 'keyup',
-                    keyCode: event.keyCode
-                })
+            switch (event.key) {
+                case 'a':
+                    left = 0;
+                    break;
+                case 'd':
+                    right = 0;
+                    break;
+                case 'w':
+                    up = 0;
+                    break;
+                case 's':
+                    down = 0;
+                    break;
             }
+
+            socket.emit('input', { x: left + right, y: up + down });
         });
     }
 }

@@ -1,3 +1,4 @@
+import { GameStateDto } from "../shared/models/game-state-dto.model";
 import { Controller } from "./controller";
 import { Renderer } from "./renderer";
 
@@ -8,15 +9,13 @@ const controller = Controller.getInstance();
 const socket = io('/');
 
 socket.on('nameRequest', nameResponse);
-
 function nameResponse(): void {
     socket.emit('nameResponse', 'MyNickname');
 }
 
 socket.on('gameState', handleGameState);
-
-function handleGameState(gameState: any) {
-    gameState = JSON.parse(gameState);
+function handleGameState(gameStateDto: string) {
+    const gameState: GameStateDto = JSON.parse(gameStateDto)
     requestAnimationFrame(() => renderer.renderGame(gameState))
 }
 

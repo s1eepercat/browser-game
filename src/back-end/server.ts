@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { State } from './state';
 import { ServerConfig } from './consts/server-config.const';
-import { InputDto } from '../shared/models/input-dto.model';
+import { PositionDto } from '../shared/models/position-dto.model';
 
 const app = express();
 const http = require('http').Server(app)
@@ -24,13 +24,13 @@ io.on('connection', (client: any) => {
         state.addPlayer(client.id, name);
 
         interval = setInterval(() => {
-            state.setPlayerPosition(client.id);
+            state.updatePlayerPosition(client.id);
             client.emit('gameState', JSON.stringify(state.getState()));
         }, 1000 / ServerConfig.FrameRate)
     });
 
-    client.on('input', (keyCode: InputDto) => {
-        state.setPlayerVelocity(client.id, keyCode);
+    client.on('input', (velocity: PositionDto) => {
+        state.setPlayerVelocity(client.id, velocity);
     });
 
     client.on('disconnect', () => {
