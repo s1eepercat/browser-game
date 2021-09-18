@@ -15,7 +15,8 @@ const config = {
     },
     resolve: {
         extensions: ['.ts', '.js'],
-    }
+    },
+    stats: 'errors-only'
 };
 
 const feConfig = Object.assign({}, config, {
