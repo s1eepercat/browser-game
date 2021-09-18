@@ -1,63 +1,103 @@
 import * as express from 'express';
 import { State } from './state';
-import { Flow } from './flow';
+import { ServerConfig } from './consts/server-config.const';
 
-class Server {
-    private static instance: typeof Server.prototype;
+const app = express();
+const http = require('http').Server(app)
+const io = require('socket.io')(http);
+const port = process.env.PORT || 3000;
 
-    public static getInstance(): typeof Server.prototype {
-        if (!Server.instance) {
-            Server.instance = new Server();
-        }
+app.use('/', express.static('public'));
 
-        return Server.instance;
-    }
+http.listen(port, () => console.log(`Server is on, port ${port}.`));
 
-    private _players = 0;
+const state = State.getInstance();
+state.iniState();
 
-    constructor() { }
+io.on('connection', (client: any) => {
+    let interval: any;
 
-    init(): void {
-        const app = express();
-        const http = require('http').Server(app)
-        const io = require('socket.io')(http);
-        const port = process.env.PORT || 3000;
+    client.emit('nameRequest');
 
-        app.use('/', express.static('public'));
+    client.on('nameResponse', (name: string) => {
+        state.addPlayer(client.id, name);
 
-        const state = State.getInstance();
-        state.iniState();
+        interval = setInterval(() => {
+            client.emit('gameState', JSON.stringify(state.getState()));
+        }, 1000 / ServerConfig.FrameRate)
+    });
 
-        const flow = Flow.getInstance();
-        flow.initGameInterval();
+    client.on('input', () => {
+        // DO MOVEMENT CALC
+    });
 
-        http.listen(port, () => console.log(`Server is on, port ${port}.`));
+    client.on('disconnect', () => {
+        state.removePlayer(client.id);
+        clearInterval(interval);
+        interval = null;
+    });
+});
 
-        io.on('connection', onConnect);
-    }
 
-    get playerCount(): number {
-        return this._players;
-    }
 
-    set playerCount(num: number) {
-        this._players = num;
-    }
-}
 
-const server = Server.getInstance()
-server.init();
 
-function onConnect(client: any): void {
-    server.playerCount++;
-    client.on('disconnect', onDisconnect);
 
-    client.emit('connected', `player count: ${server.playerCount}`);
-    
-    console.log(`Player connected, current players: ${server.playerCount}`);
-}
+// class Server {
+//     private static instance: typeof Server.prototype;
 
-function onDisconnect(): void {
-    server.playerCount--;
-    console.log(`Player disconnected, players left: ${server.playerCount}`);
-}
+//     public static getInstance(): typeof Server.prototype {
+//         if (!Server.instance) {
+//             Server.instance = new Server();
+//         }
+
+//         return Server.instance;
+//     }
+
+//     private _players = 0;
+//     private _interval = null as any;
+
+//     constructor() { }
+
+//     init(): void {
+//         const app = express();
+//         const http = require('http').Server(app)
+//         const io = require('socket.io')(http);
+//         const port = process.env.PORT || 3000;
+
+//         app.use('/', express.static('public'));
+
+//         http.listen(port, () => console.log(`Server is on, port ${port}.`));
+
+//         io.on('connection', this.onConnect);
+//     }
+
+//     onConnect(client: any): void {
+//         const nickName = 'Username' + Math.random().toString();
+
+//         this.playerCount++;
+
+//         state.addPlayer(nickName);
+
+//         this._interval = setInterval(() => {
+//             client.emit('gameState', JSON.stringify(state.getState()));
+//         }, 1000 / ServerConfig.FrameRate)
+
+//         client.on('disconnect', () => {
+//             state.removePlayer(nickName);
+//             clearInterval(this._interval);
+//             this._interval = null;
+//         });
+//     }
+
+//     get playerCount(): number {
+//         return this._players;
+//     }
+
+//     set playerCount(num: number) {
+//         this._players = num;
+//     }
+// }
+
+// const server = Server.getInstance()
+// server.init();

@@ -1,4 +1,4 @@
 export const ServerConfig = {
-    FrameRate: 30,
+    FrameRate: 2,
     GridSize: 20
 }

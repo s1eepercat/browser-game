@@ -20,16 +20,7 @@ export class State {
 
     iniState(): void {
         this.state = {
-            player: {
-                pos: {
-                    x: 5,
-                    y: 10,
-                },
-                vel: {
-                    x: 0,
-                    y: 0
-                }
-            },
+            players: [],
             food: [
                 {
                     x: 7,
@@ -42,5 +33,38 @@ export class State {
 
     getState(): GameStateDto {
         return this.state;
+    }
+
+    addPlayer(id: string, name: string): void {
+        const newPlayer = {
+            id,
+            name,
+            pos: {
+                x: Math.floor(Math.random() * ServerConfig.GridSize),
+                y: Math.floor(Math.random() * ServerConfig.GridSize)
+            },
+            vel: {
+                x: 0,
+                y: 0
+            }
+        };
+
+        this.state.players.forEach((player) => {
+            if (player.pos.x === newPlayer.pos.x && player.pos.y === newPlayer.pos.y) {
+                return this.addPlayer(id, name);
+            }
+        });
+
+        this.state = {
+            ...this.state,
+            players: [...this.state.players, newPlayer]
+        }
+    }
+
+    removePlayer(id: string): void {
+        this.state = {
+            ...this.state,
+            players: this.state.players.filter((player) => player.id !== id)
+        }
     }
 }

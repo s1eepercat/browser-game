@@ -1,12 +1,14 @@
 import { PositionDto } from "./position-dto.model";
 
 export interface GameStateDto {
-    player: PlayerDto,
-    food: PositionDto[],
-    gridSize: number
+    players: PlayerDto[];
+    food: PositionDto[];
+    gridSize: number;
 }
 
-interface PlayerDto {
-    pos: PositionDto,
-    vel: PositionDto
+export interface PlayerDto {
+    id: string;
+    name: string;
+    pos: PositionDto;
+    vel: PositionDto;
 }

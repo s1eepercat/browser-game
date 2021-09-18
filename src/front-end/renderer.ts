@@ -50,11 +50,12 @@ export class Renderer {
     }
 
     private renderPlayer(state: GameStateDto): void {
-        const player = state.player;
         const sizeW = this.canvas.width / state.gridSize;
         const sizeH = this.canvas.height / state.gridSize;
 
-        this.ctx.fillStyle = Colors.PlayerColor;
-        this.ctx.fillRect(player.pos.x * sizeW, player.pos.y * sizeH, sizeW, sizeH);
+        state.players.forEach((player) => {
+            this.ctx.fillStyle = Colors.PlayerColor;
+            this.ctx.fillRect(player.pos.x * sizeW, player.pos.y * sizeH, sizeW, sizeH);
+        })
     }
 }
