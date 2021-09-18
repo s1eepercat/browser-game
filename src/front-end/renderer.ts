@@ -1,6 +1,6 @@
 import { Colors } from "./enums/colors.enum";
 import { Config } from "./consts/config.const";
-import { GameStateDto } from "./models/game-state-dto.model";
+import { GameStateDto } from "../shared/models/game-state-dto.model";
 
 export class Renderer {
     private static instance: typeof Renderer.prototype;

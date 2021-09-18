@@ -1,13 +1,9 @@
 const path = require('path');
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
-module.exports = {
+const config = {
     mode,
-    entry: './src/index.ts',
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
-    },
+    target: 'node',
     module: {
         rules: [
             {
@@ -19,9 +15,26 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js'],
-    },
-    devtool: 'source-map',
-    devServer: {
-        static: './dist'
     }
-}
+};
+
+const feConfig = Object.assign({}, config, {
+    entry: './src/front-end/index.ts',
+    output: {
+        path: path.resolve(__dirname, 'public'),
+        filename: 'bundle.js'
+    },
+    devtool: 'source-map'
+});
+
+const beConfig = Object.assign({}, config, {
+    entry: './src/back-end/server.ts',
+    output: {
+        path: path.resolve(__dirname, 'api'),
+        filename: "server.js"
+    }
+});
+
+module.exports = [feConfig, beConfig];
+
+

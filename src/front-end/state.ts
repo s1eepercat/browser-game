@@ -1,4 +1,4 @@
-import { GameStateDto } from "./models/game-state-dto.model";
+import { GameStateDto } from "../shared/models/game-state-dto.model";
 
 export class State {
     private static instance: typeof State.prototype;
