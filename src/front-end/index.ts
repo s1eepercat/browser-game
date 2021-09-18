@@ -15,3 +15,12 @@ renderer.init();
 controller.init();
 
 renderer.renderGame(state.getState());
+
+//@ts-ignore
+const socket = io('/');
+
+socket.on('init', handleInit);
+
+function handleInit(msg: any): void {
+    console.log(msg);
+}

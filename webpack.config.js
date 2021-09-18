@@ -8,7 +8,7 @@ const config = {
         rules: [
             {
                 test: /\.(js|ts)$/,
-                exclude: /node_modules/,
+                exclude: [/node_modules/],
                 loader: 'babel-loader'
             }
         ],
@@ -25,7 +25,7 @@ const feConfig = Object.assign({}, config, {
         path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js'
     },
-    devtool: 'source-map'
+    // devtool: 'source-map'
 });
 
 const beConfig = Object.assign({}, config, {
