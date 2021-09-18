@@ -1,4 +1,4 @@
 export const Config = {
-    worldHeight: 600,
-    worldWidth: 600
+    screenHeight: 600,
+    screenWidth: 600
 }

@@ -1,9 +1,9 @@
 import { GameStateDto } from "../shared/models/game-state-dto.model";
-import { Controller } from "./controller";
+import { Controls } from "./controls";
 import { Renderer } from "./renderer";
 
 const renderer = Renderer.getInstance();
-const controller = Controller.getInstance();
+const controls = Controls.getInstance();
 
 //@ts-ignore
 const socket = io('/');
@@ -19,5 +19,5 @@ function handleGameState(gameStateDto: string) {
     requestAnimationFrame(() => renderer.renderGame(gameState))
 }
 
-controller.init(socket);
+controls.init(socket);
 renderer.init();

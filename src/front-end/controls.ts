@@ -1,17 +1,21 @@
-export class Controller {
-    private static instance: typeof Controller.prototype;
+export class Controls {
+    private static instance: typeof Controls.prototype;
 
-    public static getInstance(): typeof Controller.prototype {
-        if (!Controller.instance) {
-            Controller.instance = new Controller();
+    public static getInstance(): typeof Controls.prototype {
+        if (!Controls.instance) {
+            Controls.instance = new Controls();
         }
 
-        return Controller.instance;
+        return Controls.instance;
     }
 
     constructor() { }
 
     init(socket: any): void {
+        this.initMovement(socket);
+    }
+
+    initMovement(socket: any): void {
         let left = 0;
         let right = 0;
         let up = 0;
@@ -33,7 +37,7 @@ export class Controller {
                     break;
             }
 
-            socket.emit('input', { x: left + right, y: up + down });
+            socket.emit('velocityChange', { x: left + right, y: up + down });
         });
 
         document.addEventListener('keyup', (event) => {
@@ -52,7 +56,7 @@ export class Controller {
                     break;
             }
 
-            socket.emit('input', { x: left + right, y: up + down });
+            socket.emit('velocityChange', { x: left + right, y: up + down });
         });
     }
 }

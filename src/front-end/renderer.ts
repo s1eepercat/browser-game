@@ -22,8 +22,8 @@ export class Renderer {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d');
 
-        this.canvas.height = Config.worldHeight;
-        this.canvas.width = Config.worldWidth;
+        this.canvas.height = Config.screenHeight;
+        this.canvas.width = Config.screenWidth;
     }
 
     renderGame(state: GameStateDto): void {

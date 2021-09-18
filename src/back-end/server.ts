@@ -18,7 +18,8 @@ state.iniState();
 io.on('connection', (client: any) => {
     let interval: any;
 
-    client.emit('nameRequest');
+    client.emit('nameRequest'); // CREATE LOGIN INSTEAD OF THIS
+    // OPTIMIZE SERVER.JS??? (NO WEBPACK)
 
     client.on('nameResponse', (name: string) => {
         state.addPlayer(client.id, name);
@@ -29,7 +30,7 @@ io.on('connection', (client: any) => {
         }, 1000 / ServerConfig.FrameRate)
     });
 
-    client.on('input', (velocity: PositionDto) => {
+    client.on('velocityChange', (velocity: PositionDto) => {
         state.setPlayerVelocity(client.id, velocity);
     });
 
