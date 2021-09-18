@@ -9,18 +9,31 @@ export class Controller {
         return Controller.instance;
     }
 
+    private readonly validKeys = [87, 83, 65, 68];
+    // 87 = W
+    // 65 = A
+    // 68 = D
+    // 83 = S
+
     constructor() { }
 
-    init(): void {
-        document.addEventListener('keydown', this.keyDown);
-        document.addEventListener('keyup', this.keyUp);
-    }
+    init(socket: any): void {
+        document.addEventListener('keydown', (event) => {
+            if (this.validKeys.includes(event.keyCode)) {
+                socket.emit('input', {
+                    type: 'keydown',
+                    keyCode: event.keyCode
+                })
+            }
+        });
 
-    private keyDown($event: KeyboardEvent): void {
-        console.log($event.keyCode, 'down');
-    }
-
-    private keyUp($event: KeyboardEvent): void {
-        console.log($event.keyCode, 'up')
+        document.addEventListener('keyup', (event) => {
+            if (this.validKeys.includes(event.keyCode)) {
+                socket.emit('input', {
+                    type: 'keyup',
+                    keyCode: event.keyCode
+                })
+            }
+        });
     }
 }

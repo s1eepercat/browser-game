@@ -4,9 +4,6 @@ import { Renderer } from "./renderer";
 const renderer = Renderer.getInstance();
 const controller = Controller.getInstance();
 
-renderer.init();
-controller.init();
-
 //@ts-ignore
 const socket = io('/');
 
@@ -22,3 +19,6 @@ function handleGameState(gameState: any) {
     gameState = JSON.parse(gameState);
     requestAnimationFrame(() => renderer.renderGame(gameState))
 }
+
+controller.init(socket);
+renderer.init();
