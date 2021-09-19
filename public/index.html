@@ -15,7 +15,24 @@
 </head>
 
 <body>
-    <section class="vh-100">
+    <section id="form-screen"
+             class="vh-100">
+        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+
+            <form id="nickname-form">
+                <h1>
+                    <label for="username-input">Gib nickname</label>
+                </h1>
+                <input id="username-input"
+                       type="text">
+                <button>Start.</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="game-screen"
+             class="vh-100"
+             style="display: none">
         <div class="container h-100">
             <div id="game-screen"
                  class="h-100">

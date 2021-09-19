@@ -2,23 +2,35 @@ import { GameStateDto } from "./models/game-state-dto.model";
 import { Controls } from "./controls";
 import { Renderer } from "./renderer";
 
-const renderer = Renderer.getInstance();
-const controls = Controls.getInstance();
-
 //@ts-ignore
 const socket = io('/');
 
-socket.on('nameRequest', nameResponse);
-function nameResponse(): void {
-    socket.emit('nameResponse', 'MyNickname');
+const gameScreen = document.getElementById('game-screen');
+const formScreen = document.getElementById('form-screen');
+const input = document.getElementById('username-input');
+const loginForm = document.getElementById('nickname-form');
+loginForm.addEventListener('submit', handleSubmit);
+
+function handleSubmit(event: Event): void {
+    event.preventDefault();
+    socket.emit('nameResponse', `${input.value}`);
+
+    formScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
+
+    startGame();
 }
 
-socket.on('gameState', handleGameState);
-function handleGameState(gameStateDto: string) {
-    const gameState: GameStateDto = JSON.parse(gameStateDto);
-    console.log(gameState);
-    requestAnimationFrame(() => renderer.renderGame(gameState));
-}
+function startGame(): void {
+    const renderer = Renderer.getInstance();
+    const controls = Controls.getInstance();
 
-controls.init(socket);
-renderer.init();
+    socket.on('gameState', handleGameState);
+    function handleGameState(gameStateDto: string) {
+        const gameState: GameStateDto = JSON.parse(gameStateDto);
+        requestAnimationFrame(() => renderer.renderGame(gameState));
+    }
+
+    controls.init(socket);
+    renderer.init();
+}

@@ -1,6 +1,6 @@
 const express = require('express');
 const { State } = require('./state');
-const { ServerConfig } = require('./consts/server-config.const');
+const { FrameRate } = require('./consts/server-config.const');
 
 const app = express();
 const http = require('http').Server(app)
@@ -17,15 +17,17 @@ state.iniState();
 io.on('connection', (client) => {
     let interval;
 
-    client.emit('nameRequest');
-
     client.on('nameResponse', (name) => {
         state.addPlayer(client.id, name);
 
         interval = setInterval(() => {
-            state.updatePlayerPosition(client.id);
-            client.emit('gameState', JSON.stringify(state.getState()));
-        }, 1000 / ServerConfig.FrameRate)
+
+            if (!!state.getPlayerById(client.id)) {
+                state.updatePlayerPosition(client.id);
+                client.emit('gameState', JSON.stringify(state.getState()));
+            }
+
+        }, 1000 / FrameRate)
     });
 
     client.on('velocityChange', (velocity) => {
