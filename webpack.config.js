@@ -1,14 +1,18 @@
 const path = require('path');
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
-const config = {
+module.exports = {
     mode,
-    target: 'node',
+    entry: './src/index.ts',
+    output: {
+        path: path.resolve(__dirname, 'public'),
+        filename: 'bundle.js'
+    },
     module: {
         rules: [
             {
                 test: /\.(js|ts)$/,
-                exclude: [/node_modules/],
+                exclude: /node_modules/,
                 loader: 'babel-loader'
             }
         ],
@@ -16,26 +20,44 @@ const config = {
     resolve: {
         extensions: ['.ts', '.js'],
     },
-    stats: 'errors-only'
-};
-
-const feConfig = Object.assign({}, config, {
-    entry: './src/front-end/index.ts',
-    output: {
-        path: path.resolve(__dirname, 'public'),
-        filename: 'bundle.js'
-    },
     devtool: 'source-map'
-});
+}
 
-const beConfig = Object.assign({}, config, {
-    entry: './src/back-end/server.ts',
-    output: {
-        path: path.resolve(__dirname, 'api'),
-        filename: "server.js"
-    }
-});
+// const config = {
+//     mode,
+//     // target: 'node',
+//     module: {
+//         rules: [
+//             {
+//                 test: /\.(js|ts)$/,
+//                 exclude: [/node_modules/],
+//                 loader: 'babel-loader'
+//             }
+//         ],
+//     },
+//     resolve: {
+//         extensions: ['.ts', '.js'],
+//     },
+//     stats: 'errors-only'
+// };
 
-module.exports = [feConfig, beConfig];
+// const feConfig = Object.assign({}, config, {
+//     entry: './src/front-end/index.ts',
+//     output: {
+//         path: path.resolve(__dirname, 'public'),
+//         filename: 'bundle.js'
+//     },
+//     devtool: 'source-map'
+// });
+
+// const beConfig = Object.assign({}, config, {
+//     entry: './src/back-end/server.ts',
+//     output: {
+//         path: path.resolve(__dirname, 'api'),
+//         filename: "server.js"
+//     }
+// });
+
+// module.exports = [feConfig];
 
 

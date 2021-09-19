@@ -1,11 +1,9 @@
-import { GameStateDto, PlayerDto } from "../shared/models/game-state-dto.model";
-import { PositionDto } from "../shared/models/position-dto.model";
-import { ServerConfig } from "./consts/server-config.const";
+const { ServerConfig } = require('./consts/server-config.const');
 
-export class State {
-    private static instance: typeof State.prototype;
+class State {
+    static instance;
 
-    public static getInstance(): typeof State.prototype {
+    static getInstance() {
         if (!State.instance) {
             State.instance = new State();
         }
@@ -13,11 +11,11 @@ export class State {
         return State.instance;
     }
 
-    private state: GameStateDto;
+    state;
 
     constructor() { }
 
-    iniState(): void {
+    iniState() {
         this.state = {
             players: [],
             food: [
@@ -30,19 +28,19 @@ export class State {
         }
     }
 
-    getState(): GameStateDto {
+    getState() {
         return this.state;
     }
 
-    getPlayerById(id: string): PlayerDto {
+    getPlayerById(id) {
         return this.state.players.find(player => player.id === id);
     }
 
-    allPlayersExcept(id: string): PlayerDto[] {
+    allPlayersExcept(id) {
         return this.state.players.filter(player => player.id !== id);
     }
 
-    addPlayer(id: string, name: string): void {
+    addPlayer(id, name) {
         const newPlayer = { // init player object
             id,
             name,
@@ -53,7 +51,7 @@ export class State {
             vel: { x: 0, y: 0 }
         };
 
-        this.state.players.forEach(player => { // make sure player is not spawning inside another player
+        this.state.players.length && this.state.players.forEach(player => { // make sure player is not spawning inside another player
             if (player.pos.x === newPlayer.pos.x && player.pos.y === newPlayer.pos.y) {
                 return this.addPlayer(id, name);
             }
@@ -62,11 +60,11 @@ export class State {
         this.state = { ...this.state, players: [...this.state.players, newPlayer] }
     }
 
-    removePlayer(id: string): void {
+    removePlayer(id) {
         this.state = { ...this.state, players: this.state.players.filter(player => player.id !== id) }
     }
 
-    setPlayerVelocity(id: string, velocity: PositionDto): void {
+    setPlayerVelocity(id, velocity) {
         const player = this.getPlayerById(id);
 
         this.state = {
@@ -84,7 +82,7 @@ export class State {
         }
     }
 
-    updatePlayerPosition(id: string): void {
+    updatePlayerPosition(id) {
         const player = this.getPlayerById(id);
 
         if (player.vel.x === 0 && player.vel.y === 0) { // make sure player needs moving
@@ -105,4 +103,8 @@ export class State {
             ]
         }
     }
+}
+
+module.exports = {
+    State
 }

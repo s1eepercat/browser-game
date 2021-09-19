@@ -1,4 +1,4 @@
-import { GameStateDto } from "../shared/models/game-state-dto.model";
+import { GameStateDto } from "./models/game-state-dto.model";
 import { Controls } from "./controls";
 import { Renderer } from "./renderer";
 
@@ -15,8 +15,9 @@ function nameResponse(): void {
 
 socket.on('gameState', handleGameState);
 function handleGameState(gameStateDto: string) {
-    const gameState: GameStateDto = JSON.parse(gameStateDto)
-    requestAnimationFrame(() => renderer.renderGame(gameState))
+    const gameState: GameStateDto = JSON.parse(gameStateDto);
+    console.log(gameState);
+    requestAnimationFrame(() => renderer.renderGame(gameState));
 }
 
 controls.init(socket);

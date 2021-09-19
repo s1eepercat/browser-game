@@ -1,6 +1,6 @@
 import { Colors } from "./enums/colors.enum";
 import { Config } from "./consts/config.const";
-import { GameStateDto } from "../shared/models/game-state-dto.model";
+import { GameStateDto } from "./models/game-state-dto.model";
 
 export class Renderer {
     private static instance: typeof Renderer.prototype;
@@ -33,9 +33,6 @@ export class Renderer {
     }
 
     private renderWorld(state: GameStateDto): void {
-        this.ctx.fillStyle = Colors.BgColor;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.ctx.fillStyle = Colors.BgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
