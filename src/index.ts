@@ -13,12 +13,15 @@ loginForm.addEventListener('submit', handleSubmit);
 
 function handleSubmit(event: Event): void {
     event.preventDefault();
-    socket.emit('nameResponse', `${input.value}`);
+    socket.emit('playerInit', `${input.value}`);
 
     formScreen.style.display = 'none';
     gameScreen.style.display = 'block';
 
-    startGame();
+    new Promise((resolve) => {
+        socket.on('playerAdded', () => resolve(true));
+    })
+        .then(() => startGame());
 }
 
 function startGame(): void {

@@ -287,10 +287,16 @@ loginForm.addEventListener('submit', handleSubmit);
 
 function handleSubmit(event) {
   event.preventDefault();
-  socket.emit('nameResponse', "".concat(input.value));
+  socket.emit('playerInit', "".concat(input.value));
   formScreen.style.display = 'none';
   gameScreen.style.display = 'block';
-  startGame();
+  new Promise(function (resolve) {
+    socket.on('playerAdded', function () {
+      return resolve(true);
+    });
+  }).then(function () {
+    return startGame();
+  });
 }
 
 function startGame() {

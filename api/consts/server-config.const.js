@@ -3,5 +3,5 @@ module.exports = {
     GridSize: 40,
     MapWidth: 20,
     MapHeight: 15,
-    PlayerSpeed: 0.5 /* if changed from 0.5 - collision needs to be recalibrated */
+    PlayerSpeed: 1
 }

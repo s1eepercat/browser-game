@@ -50,15 +50,14 @@ class State {
             vel: { x: 0, y: 0 }
         };
 
-        this.state.players.length && this.state.players.forEach(player => { // make sure player is not spawning inside another player
-            try { //DEBUG ---------------------------------------------------------
+        if (this.allPlayersExcept(id).length) {
+            this.allPlayersExcept(id).forEach(player => { // make sure player is not spawning inside another player
+                console.log(player);
                 if (player.pos.x === newPlayer.pos.x && player.pos.y === newPlayer.pos.y) {
                     return this.addPlayer(id, name);
                 }
-            } catch (e) {
-                console.log(player.pos);
-            }//DEBUG ---------------------------------------------------------
-        });
+            });
+        }
 
         this.state = { ...this.state, players: [...this.state.players, newPlayer] }
     }
@@ -69,6 +68,10 @@ class State {
 
     setPlayerVelocity(id, velocity) {
         const player = this.getPlayerById(id);
+
+        if (!player) {
+            return;
+        }
 
         this.state = {
             ...this.state,
@@ -129,24 +132,23 @@ class State {
     }
 
     checkCollision(player, objectX, objectY) {
-        // player.pos.x + player.vel.x * PlayerSpeed === objectX // for 1 speed
-        // &&
-        // player.pos.y + player.vel.y * PlayerSpeed === objectY
-
         let collision = false;
 
         if (
-            (
-                player.pos.x + player.vel.x * PlayerSpeed === objectX - (PlayerSpeed) || // for 0.5 speed
-                player.pos.x + player.vel.x * PlayerSpeed === objectX + (PlayerSpeed) ||
-                player.pos.x + player.vel.x * PlayerSpeed === objectX
-            )
+            // (
+            //     player.pos.x + player.vel.x * PlayerSpeed === objectX - (PlayerSpeed) || // for 0.5 speed
+            //     player.pos.x + player.vel.x * PlayerSpeed === objectX + (PlayerSpeed) ||
+            //     player.pos.x + player.vel.x * PlayerSpeed === objectX
+            // )
+            // &&
+            // (
+            //     player.pos.y + player.vel.y * PlayerSpeed === objectY - (PlayerSpeed) ||
+            //     player.pos.y + player.vel.y * PlayerSpeed === objectY + (PlayerSpeed) ||
+            //     player.pos.y + player.vel.y * PlayerSpeed === objectY
+            // )
+            player.pos.x + player.vel.x * PlayerSpeed === objectX // for 1 speed
             &&
-            (
-                player.pos.y + player.vel.y * PlayerSpeed === objectY - (PlayerSpeed) ||
-                player.pos.y + player.vel.y * PlayerSpeed === objectY + (PlayerSpeed) ||
-                player.pos.y + player.vel.y * PlayerSpeed === objectY
-            )
+            player.pos.y + player.vel.y * PlayerSpeed === objectY
         ) {
             collision = true;
         }
