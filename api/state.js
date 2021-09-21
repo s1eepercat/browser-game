@@ -1,4 +1,4 @@
-const { GridSize, PlayerSpeed, MapWidth, MapHeight } = require('./consts/server-config.const');
+const { GridSize, PlayerSpeed, MapWidth, MapHeight, ItemAmount } = require('./consts/server-config.const');
 
 class State {
     static instance;
@@ -21,14 +21,22 @@ class State {
             map: {
                 mapWidth: MapWidth,
                 mapHeight: MapHeight
-
             },
+            items: [],
             gridSize: GridSize
         }
+
+        do {
+            this.addItems();
+        } while (this.state.items.length < ItemAmount);
     }
 
-    getState() {
-        return this.state;
+    getStateForPlayer(id) {
+        return {
+            ...this.state,
+            players: [...this.allPlayersExcept(id)],
+            player: this.getPlayerById(id)
+        }
     }
 
     getPlayerById(id) {
@@ -37,6 +45,23 @@ class State {
 
     allPlayersExcept(id) {
         return this.state.players.filter(player => player.id !== id);
+    }
+
+    addItems() {
+        const newItem = { // init item object
+            pos: {
+                x: Math.floor(Math.random() * this.state.map.mapWidth),
+                y: Math.floor(Math.random() * this.state.map.mapHeight)
+            }
+        };
+
+        this.state.players.forEach(player => { // make sure item is not spawning inside a player
+            if (player.pos.x === newItem.pos.x && player.pos.y === newItem.pos.y) {
+                return this.addItems();
+            }
+        });
+
+        this.state = { ...this.state, items: [...this.state.items, newItem] }
     }
 
     addPlayer(id, name) {
@@ -52,7 +77,6 @@ class State {
 
         if (this.allPlayersExcept(id).length) {
             this.allPlayersExcept(id).forEach(player => { // make sure player is not spawning inside another player
-                console.log(player);
                 if (player.pos.x === newPlayer.pos.x && player.pos.y === newPlayer.pos.y) {
                     return this.addPlayer(id, name);
                 }
@@ -110,7 +134,11 @@ class State {
         }
 
         this.allPlayersExcept(id).forEach(otherPlayer => { // prevent collision with players
-            collision = this.checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y);
+            collision = this.checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y) || collision;
+        });
+
+        this.state.items.forEach(item => { // prevent collision with items
+            collision = this.checkCollision(player, item.pos.x, item.pos.y) || collision;
         });
 
         if (!collision) {
@@ -134,22 +162,8 @@ class State {
     checkCollision(player, objectX, objectY) {
         let collision = false;
 
-        if (
-            // (
-            //     player.pos.x + player.vel.x * PlayerSpeed === objectX - (PlayerSpeed) || // for 0.5 speed
-            //     player.pos.x + player.vel.x * PlayerSpeed === objectX + (PlayerSpeed) ||
-            //     player.pos.x + player.vel.x * PlayerSpeed === objectX
-            // )
-            // &&
-            // (
-            //     player.pos.y + player.vel.y * PlayerSpeed === objectY - (PlayerSpeed) ||
-            //     player.pos.y + player.vel.y * PlayerSpeed === objectY + (PlayerSpeed) ||
-            //     player.pos.y + player.vel.y * PlayerSpeed === objectY
-            // )
-            player.pos.x + player.vel.x * PlayerSpeed === objectX // for 1 speed
-            &&
-            player.pos.y + player.vel.y * PlayerSpeed === objectY
-        ) {
+        if (player.pos.x + player.vel.x * PlayerSpeed === objectX &&
+            player.pos.y + player.vel.y * PlayerSpeed === objectY) {
             collision = true;
         }
 

@@ -1,6 +1,8 @@
 export interface GameStateDto {
+    player: PlayerDto;
     players: PlayerDto[];
     map: MapDto;
+    items: ItemDto[];
     gridSize: number;
 }
 
@@ -9,6 +11,10 @@ export interface PlayerDto {
     name: string;
     pos: PositionDto;
     vel: PositionDto;
+}
+
+export interface ItemDto {
+    pos: PositionDto;
 }
 
 export interface PositionDto {

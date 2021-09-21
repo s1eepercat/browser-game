@@ -115,7 +115,8 @@ var Colors;
 (function (Colors) {
   Colors["BgColor"] = "#231f20";
   Colors["FloorColor"] = "#93c09e";
-  Colors["PlayerColor"] = "#136185";
+  Colors["PlayerColor"] = "#006a4e";
+  Colors["PlayersColor"] = "#136185";
   Colors["ItemColor"] = "#e66916";
   Colors["NameColor"] = "#F0FFF0";
 })(Colors || (Colors = {}));
@@ -157,7 +158,13 @@ var Renderer = /*#__PURE__*/function () {
     key: "renderGame",
     value: function renderGame(state) {
       this.renderWorld(state);
-      this.renderPlayer(state);
+
+      var _this$renderPlayer = this.renderPlayer(state),
+          playerX = _this$renderPlayer.playerX,
+          playerY = _this$renderPlayer.playerY;
+
+      this.renderPlayers(state, playerX, playerY);
+      this.renderItems(state, playerX, playerY);
     }
   }, {
     key: "renderWorld",
@@ -166,32 +173,81 @@ var Renderer = /*#__PURE__*/function () {
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.FloorColor;
       this.ctx.fillRect(0, 0, state.map.mapWidth * state.gridSize, state.map.mapHeight * state.gridSize);
-    } // private renderFood(state: GameStateDto): void {
-    //     const food = state.food[0];
-    //     const sizeW = this.canvas.width / state.gridSize;
-    //     const sizeH = this.canvas.height / state.gridSize;
-    //     this.ctx.fillStyle = Colors.ItemColor;
-    //     this.ctx.fillRect(food.x * sizeW, food.y * sizeH, sizeW, sizeH);
-    // }
-
+    }
   }, {
     key: "renderPlayer",
     value: function renderPlayer(state) {
+      var player = state.player;
+      var gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+      var gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
+      var playerX;
+      var playerY;
+
+      if (player.pos.x <= gridCanvasWidth / 2) {
+        playerX = player.pos.x * state.gridSize;
+      } else if (player.pos.x >= state.map.mapWidth - gridCanvasWidth / 2) {
+        playerX = this.canvas.width - (state.map.mapWidth - player.pos.x) * state.gridSize;
+      } else {
+        playerX = this.canvas.width / 2;
+      }
+
+      if (player.pos.y <= gridCanvasHeight / 2) {
+        playerY = player.pos.y * state.gridSize;
+      } else if (player.pos.y >= state.map.mapHeight - gridCanvasHeight / 2) {
+        playerY = this.canvas.height - (state.map.mapHeight - player.pos.y) * state.gridSize;
+      } else {
+        playerY = this.canvas.height / 2;
+      } //name
+
+
+      this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.NameColor;
+      this.ctx.font = "25px Arial";
+      var textWidth = this.ctx.measureText(player.name).width;
+      this.ctx.fillText(player.name, playerX - textWidth / 2 + state.gridSize / 2, playerY - state.gridSize / 2); //character
+
+      this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.PlayerColor;
+      this.ctx.fillRect(playerX, playerY, state.gridSize, state.gridSize);
+      return {
+        playerX: playerX,
+        playerY: playerY
+      };
+    }
+  }, {
+    key: "renderPlayers",
+    value: function renderPlayers(state, playerX, playerY) {
       var _this = this;
 
+      var gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+      var gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
       state.players.forEach(function (player) {
-        //name
-        _this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.NameColor;
-        _this.ctx.font = "25px Arial";
+        var xGridDiff = player.pos.x - state.player.pos.x;
+        var yGridDiff = player.pos.y - state.player.pos.y;
 
-        var textWidth = _this.ctx.measureText(player.name).width;
+        if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
+          //name
+          _this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.NameColor;
+          _this.ctx.font = "25px Arial";
 
-        _this.ctx.fillText(player.name, player.pos.x * state.gridSize - textWidth / 2 + state.gridSize / 2, player.pos.y * state.gridSize - state.gridSize / 2); //character
+          var textWidth = _this.ctx.measureText(player.name).width;
+
+          _this.ctx.fillText(player.name, playerX + xGridDiff * state.gridSize - textWidth / 2 + state.gridSize / 2, playerY + yGridDiff * state.gridSize - state.gridSize / 2); //character
 
 
-        _this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.PlayerColor;
+          _this.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.PlayersColor;
 
-        _this.ctx.fillRect(player.pos.x * state.gridSize, player.pos.y * state.gridSize, state.gridSize, state.gridSize);
+          _this.ctx.fillRect(playerX + xGridDiff * state.gridSize, playerY + yGridDiff * state.gridSize, state.gridSize, state.gridSize);
+        }
+      });
+    }
+  }, {
+    key: "renderItems",
+    value: function renderItems(state, playerX, playerY) {
+      var _this2 = this;
+
+      state.items.forEach(function (item) {
+        _this2.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.ItemColor;
+
+        _this2.ctx.fillRect(item.pos.x * state.gridSize, item.pos.y * state.gridSize, state.gridSize, state.gridSize);
       });
     }
   }], [{

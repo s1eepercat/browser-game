@@ -1,7 +1,6 @@
 const express = require('express');
 const { State } = require('./state');
 const { FrameRate } = require('./consts/server-config.const');
-const { stringify } = require('querystring');
 
 const app = express();
 const http = require('http').Server(app)
@@ -27,7 +26,7 @@ io.on('connection', (client) => {
 
             if (!!state.getPlayerById(client.id)) {
                 state.updatePlayerPosition(client.id);
-                client.emit('gameState', JSON.stringify(state.getState()));
+                client.emit('gameState', JSON.stringify(state.getStateForPlayer(client.id)));
             }
 
         }, 1000 / FrameRate);
