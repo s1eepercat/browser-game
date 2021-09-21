@@ -244,10 +244,17 @@ var Renderer = /*#__PURE__*/function () {
     value: function renderItems(state, playerX, playerY) {
       var _this2 = this;
 
+      var gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+      var gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
       state.items.forEach(function (item) {
-        _this2.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.ItemColor;
+        var xGridDiff = item.pos.x - state.player.pos.x;
+        var yGridDiff = item.pos.y - state.player.pos.y;
 
-        _this2.ctx.fillRect(item.pos.x * state.gridSize, item.pos.y * state.gridSize, state.gridSize, state.gridSize);
+        if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
+          _this2.ctx.fillStyle = _enums_colors_enum__WEBPACK_IMPORTED_MODULE_0__.Colors.ItemColor;
+
+          _this2.ctx.fillRect(playerX + xGridDiff * state.gridSize, playerY + yGridDiff * state.gridSize, state.gridSize, state.gridSize);
+        }
       });
     }
   }], [{

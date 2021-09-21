@@ -4,6 +4,5 @@ module.exports = {
     MapWidth: 100,
     MapHeight: 100,
     PlayerSpeed: 1,
-
-    ItemAmount: 0
+    ItemAmount: 100
 }

@@ -101,9 +101,17 @@ export class Renderer {
     }
 
     private renderItems(state: GameStateDto, playerX: number, playerY: number): void {
+        const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+        const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
+
         state.items.forEach((item: ItemDto) => {
-            this.ctx.fillStyle = Colors.ItemColor;
-            this.ctx.fillRect(item.pos.x * state.gridSize, item.pos.y * state.gridSize, state.gridSize, state.gridSize);
+            const xGridDiff = item.pos.x - state.player.pos.x;
+            const yGridDiff = item.pos.y - state.player.pos.y;
+
+            if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
+                this.ctx.fillStyle = Colors.ItemColor;
+                this.ctx.fillRect(playerX + (xGridDiff * state.gridSize), playerY + (yGridDiff * state.gridSize), state.gridSize, state.gridSize);
+            }
         });
     }
 }
