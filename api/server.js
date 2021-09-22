@@ -55,6 +55,8 @@ class PlayerHandler {
     }
 
     onDisconnect() {
+        console.log('Player: "' + dynamicState.getPlayerById(this.client.id).name + '" diconnected at ' + new Date())
+
         dynamicState.removePlayer(this.client.id);
         clearInterval(this.interval);
         this.interval = null;
