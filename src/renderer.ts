@@ -1,5 +1,8 @@
 import { Colors } from "./enums/colors.enum";
-import { GameStateDto, ItemDto } from "./models/game-state-dto.model";
+import { DynamicStateDto, ItemDto, PlayerDto } from "./models/dynamic-state-dto.model";
+import { StaticStateDto } from "./models/static-state-dto.model";
+
+interface GameState extends StaticStateDto, DynamicStateDto { }
 
 export class Renderer {
     private static instance: typeof Renderer.prototype;
@@ -25,14 +28,14 @@ export class Renderer {
         this.canvas.width = window.innerWidth * 0.75;
     }
 
-    renderGame(state: GameStateDto): void {
+    renderGame(state: GameState): void {
         this.renderWorld(state);
         const { playerX, playerY } = this.renderPlayer(state);
         this.renderPlayers(state, playerX, playerY);
         this.renderItems(state, playerX, playerY);
     }
 
-    private renderWorld(state: GameStateDto): void {
+    private renderWorld(state: GameState): void {
         this.ctx.fillStyle = Colors.BgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -40,14 +43,14 @@ export class Renderer {
         this.ctx.fillRect(0, 0, state.map.mapWidth * state.gridSize, state.map.mapHeight * state.gridSize);
     }
 
-    private renderPlayer(state: GameStateDto): { playerX: number, playerY: number } {
+    private renderPlayer(state: GameState): { playerX: number, playerY: number } {
         const player = state.player;
 
         const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
         const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
 
-        let playerX;
-        let playerY;
+        let playerX: number;
+        let playerY: number;
 
         if (player.pos.x <= gridCanvasWidth / 2) {
             playerX = player.pos.x * state.gridSize;
@@ -78,11 +81,11 @@ export class Renderer {
         return { playerX, playerY };
     }
 
-    private renderPlayers(state: GameStateDto, playerX: number, playerY: number): void {
+    private renderPlayers(state: GameState, playerX: number, playerY: number): void {
         const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
         const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
 
-        state.players.forEach((player) => {
+        state.players.forEach((player: PlayerDto) => {
             const xGridDiff = player.pos.x - state.player.pos.x;
             const yGridDiff = player.pos.y - state.player.pos.y;
 
@@ -100,7 +103,7 @@ export class Renderer {
         })
     }
 
-    private renderItems(state: GameStateDto, playerX: number, playerY: number): void {
+    private renderItems(state: GameState, playerX: number, playerY: number): void {
         const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
         const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
 

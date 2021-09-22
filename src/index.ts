@@ -1,4 +1,5 @@
-import { GameStateDto } from "./models/game-state-dto.model";
+import { StaticStateDto } from "./models/static-state-dto.model";
+import { DynamicStateDto } from "./models/dynamic-state-dto.model";
 import { Controls } from "./controls";
 import { Renderer } from "./renderer";
 
@@ -7,33 +8,38 @@ const socket = io('/');
 
 const gameScreen = document.getElementById('game-screen');
 const formScreen = document.getElementById('form-screen');
-const input = document.getElementById('username-input');
-const loginForm = document.getElementById('nickname-form');
-loginForm.addEventListener('submit', handleSubmit);
 
-function handleSubmit(event: Event): void {
+const nicknameForm = document.getElementById('nickname-form');
+const input = document.getElementById('username-input');
+
+nicknameForm.addEventListener('submit', onGameStart);
+
+function onGameStart(event: Event): void {
     event.preventDefault();
-    socket.emit('playerInit', `${input.value}`);
 
     formScreen.style.display = 'none';
     gameScreen.style.display = 'block';
 
-    new Promise((resolve) => {
-        socket.on('playerAdded', () => resolve(true));
-    })
-        .then(() => startGame());
+    socket.emit('playerInit', `${input.value}`);
+
+    socket.on('staticState', (staticState: string) => new Player(JSON.parse(staticState)).init());
 }
 
-function startGame(): void {
-    const renderer = Renderer.getInstance();
-    const controls = Controls.getInstance();
+class Player {
+    private readonly controls = Controls.getInstance();
+    private readonly renderer = Renderer.getInstance();
 
-    socket.on('gameState', handleGameState);
-    function handleGameState(gameStateDto: string) {
-        const gameState: GameStateDto = JSON.parse(gameStateDto);
-        requestAnimationFrame(() => renderer.renderGame(gameState));
+    constructor(private staticState: StaticStateDto) { }
+
+    init(): void {
+        this.controls.init(socket);
+        this.renderer.init();
+
+        socket.on('dynamicState', this.onDynamicStateChange.bind(this))
     }
 
-    controls.init(socket);
-    renderer.init();
+    onDynamicStateChange(dynamicStateDto: string): void {
+        const dynamicState: DynamicStateDto = JSON.parse(dynamicStateDto);
+        requestAnimationFrame(() => this.renderer.renderGame({ ...this.staticState, ...dynamicState }));
+    }
 }

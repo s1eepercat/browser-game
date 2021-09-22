@@ -1,5 +1,6 @@
 const express = require('express');
-const { State } = require('./state');
+const { StaticState } = require('./static-state');
+const { DynamicState } = require('./dynamic-state');
 const { FrameRate } = require('./consts/server-config.const');
 
 const app = express();
@@ -11,35 +12,51 @@ app.use('/', express.static('public'));
 
 http.listen(port, () => console.log(`Server is on, port ${port}.`));
 
-const state = State.getInstance();
-state.iniState();
+const staticState = StaticState.getInstance();
+staticState.iniState();
 
-io.on('connection', (client) => {
-    let interval;
+const dynamicState = DynamicState.getInstance();
+dynamicState.iniState();
 
-    client.on('playerInit', (name) => {
-        state.addPlayer(client.id, name);
+io.on('connection', (client) => new PlayerHandler(client).init());
 
-        client.emit('playerAdded');
+class PlayerHandler {
+    interval;
 
-        interval = setInterval(() => {
+    constructor(client) { this.client = client }
 
-            if (!!state.getPlayerById(client.id)) {
-                state.updatePlayerPosition(client.id);
-                client.emit('gameState', JSON.stringify(state.getStateForPlayer(client.id)));
-            }
+    init() {
+        new Promise((resolve, reject) => this.client.on('playerInit', (name) => {
+            this.onPlayerInit(name) ? resolve() : reject()
+        }))
+            .then(() => {
+                this.client.emit('staticState', JSON.stringify(staticState.getSharedState(this.client.id)));
 
-        }, 1000 / FrameRate);
+                this.client.on('velocityChange', (velocity) => this.onVelocityChange(velocity));
+                this.client.on('disconnect', () => this.onDisconnect());
 
-    });
+                this.interval = setInterval(() => this.onGameIteration(), 1000 / FrameRate);
+            })
+            .catch(() => console.log('Could not add player...'));
+    }
 
-    client.on('velocityChange', (velocity) => {
-        state.setPlayerVelocity(client.id, velocity);
-    });
+    onGameIteration() {
+        this.client.emit('dynamicState', JSON.stringify(dynamicState.getPersonalPlayerState(this.client.id)));
+        dynamicState.updatePlayerPosition(this.client.id);
+    }
 
-    client.on('disconnect', () => {
-        state.removePlayer(client.id);
-        clearInterval(interval);
-        interval = null;
-    });
-});
+    onPlayerInit(name) {
+        dynamicState.addPlayer(this.client.id, name);
+        return dynamicState.getPlayerById(this.client.id);
+    }
+
+    onVelocityChange(velocity) {
+        dynamicState.setPlayerVelocity(this.client.id, velocity);
+    }
+
+    onDisconnect() {
+        dynamicState.removePlayer(this.client.id);
+        clearInterval(this.interval);
+        this.interval = null;
+    }
+}
