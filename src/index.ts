@@ -65,7 +65,6 @@ class Player {
             }
         }
 
-        console.log(dynamicStateDto);
         requestAnimationFrame(() => this.renderer.renderGame({ ...this.staticState, ...this.dynamicState }));
     }
 }
