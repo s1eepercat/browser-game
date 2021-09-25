@@ -22,12 +22,17 @@ function onGameStart(event: Event): void {
 
     socket.emit('playerInit', `${input.value}`);
 
-    socket.on('staticState', (staticState: string) => new Player(JSON.parse(staticState)).init());
+    socket.on('staticState', (staticState: StaticStateDto) => new Player(staticState).init());
 }
 
 class Player {
     private readonly controls = Controls.getInstance();
     private readonly renderer = Renderer.getInstance();
+
+    private dynamicState: DynamicStateDto = {
+        players: [],
+        items: []
+    };
 
     constructor(private staticState: StaticStateDto) { }
 
@@ -38,8 +43,29 @@ class Player {
         socket.on('dynamicState', this.onDynamicStateChange.bind(this))
     }
 
-    onDynamicStateChange(dynamicStateDto: string): void {
-        const dynamicState: DynamicStateDto = JSON.parse(dynamicStateDto);
-        requestAnimationFrame(() => this.renderer.renderGame({ ...this.staticState, ...dynamicState }));
+    onDynamicStateChange(dynamicStateDto: DynamicStateDto): void {
+        if (!this.dynamicState) {
+            this.dynamicState = dynamicStateDto;
+        } else {
+            this.dynamicState = {
+                ...this.dynamicState,
+                player: dynamicStateDto.player
+            }
+            if (dynamicStateDto.hasOwnProperty('players')) {
+                this.dynamicState = {
+                    ...this.dynamicState,
+                    players: dynamicStateDto.players
+                }
+            }
+            if (dynamicStateDto.hasOwnProperty('items')) {
+                this.dynamicState = {
+                    ...this.dynamicState,
+                    items: dynamicStateDto.items
+                }
+            }
+        }
+
+        console.log(dynamicStateDto);
+        requestAnimationFrame(() => this.renderer.renderGame({ ...this.staticState, ...this.dynamicState }));
     }
 }

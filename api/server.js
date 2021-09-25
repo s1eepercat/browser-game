@@ -30,7 +30,7 @@ class PlayerHandler {
             this.onPlayerInit(name) ? resolve() : reject()
         }))
             .then(() => {
-                this.client.emit('staticState', JSON.stringify(staticState.getSharedState(this.client.id)));
+                this.client.emit('staticState', staticState.getSharedState(this.client.id));
 
                 this.client.on('velocityChange', (velocity) => this.onVelocityChange(velocity));
                 this.client.on('disconnect', () => this.onDisconnect());
@@ -41,7 +41,7 @@ class PlayerHandler {
     }
 
     onGameIteration() {
-        this.client.emit('dynamicState', JSON.stringify(dynamicState.getPersonalPlayerState(this.client.id)));
+        this.client.emit('dynamicState', dynamicState.getPersonalPlayerState(this.client.id));
         dynamicState.updatePlayerPosition(this.client.id);
     }
 

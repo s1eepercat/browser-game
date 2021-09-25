@@ -2,21 +2,19 @@ const { MapWidth, MapHeight, GridSize } = require('./consts/server-config.const'
 
 class StaticState {
     static instance;
-
     static getInstance() {
         if (!StaticState.instance) {
             StaticState.instance = new StaticState();
         }
-
         return StaticState.instance;
     }
 
-    _staticState;
+    staticState;
 
     constructor() { }
 
     iniState() {
-        this._staticState = {
+        this.staticState = {
             map: {
                 mapWidth: MapWidth,
                 mapHeight: MapHeight
@@ -26,7 +24,7 @@ class StaticState {
     }
 
     getSharedState() {
-        return this._staticState;
+        return this.staticState;
     }
 }
 

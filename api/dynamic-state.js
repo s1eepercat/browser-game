@@ -1,43 +1,61 @@
 const { PlayerSpeed, ItemAmount, MapWidth, MapHeight } = require('./consts/server-config.const');
+const { Utilities } = require('./helpers/utilities');
 
 class DynamicState {
     static instance;
-
     static getInstance() {
         if (!DynamicState.instance) {
             DynamicState.instance = new DynamicState();
         }
-
         return DynamicState.instance;
     }
 
-    _dynamicState;
+    dynamicState;
 
     constructor() { }
 
     iniState() {
-        this._dynamicState = {
+        this.dynamicState = {
             players: [],
             items: [],
         }
 
-        do { this.addItems(); } while (this._dynamicState.items.length < ItemAmount);
+        do { this.addItems(); } while (this.dynamicState.items.length < ItemAmount);
     }
 
     getPlayerById(id) {
-        return this._dynamicState.players.find(player => player.id === id);
+        return this.dynamicState.players.find(player => player.id === id);
     }
 
     getAllPlayersExcept(id) {
-        return this._dynamicState.players.filter(player => player.id !== id);
+        return this.dynamicState.players.filter(player => player.id !== id);
     }
 
     getPersonalPlayerState(id) {
-        return {
-            ...this._dynamicState,
-            players: [...this.getAllPlayersExcept(id)],
-            player: this.getPlayerById(id)
+        const currentPlayer = this.getPlayerById(id);
+
+        let state = {
+            player: {
+                name: currentPlayer.name,
+                pos: currentPlayer.pos
+            }
+        };
+
+        const players = this.getAllPlayersExcept(id)
+            .filter(player => Utilities.getInstance().isInVisibleDistance(currentPlayer, player.pos.x, player.pos.y))
+            .map(player => { return { name: player.name, pos: player.pos } });
+
+        const items = this.dynamicState.items.filter((item) => Utilities.getInstance().isInVisibleDistance(currentPlayer, item.pos.x, item.pos.y));
+
+        if (players.length) {
+            state['players'] = players;
         }
+
+        if (items.length) {
+            state['items'] = items;
+        }
+
+        return state;
     }
 
     addPlayer(id, name) {
@@ -59,7 +77,7 @@ class DynamicState {
             });
         }
 
-        this._dynamicState = { ...this._dynamicState, players: [...this._dynamicState.players, newPlayer] }
+        this.dynamicState = { ...this.dynamicState, players: [...this.dynamicState.players, newPlayer] }
     }
 
     addItems() {
@@ -71,19 +89,19 @@ class DynamicState {
                 }
             };
 
-            this._dynamicState.players.forEach(player => { // make sure item is not spawning inside a player
+            this.dynamicState.players.forEach(player => { // make sure item is not spawning inside a player
                 if (player.pos.x === newItem.pos.x && player.pos.y === newItem.pos.y) {
                     return this.addItems();
                 }
             });
 
-            this._dynamicState = { ...this._dynamicState, items: [...this._dynamicState.items, newItem] }
+            this.dynamicState = { ...this.dynamicState, items: [...this.dynamicState.items, newItem] }
 
-        } while (this._dynamicState.items.length < ItemAmount);
+        } while (this.dynamicState.items.length < ItemAmount);
     }
 
     removePlayer(id) {
-        this._dynamicState = { ...this._dynamicState, players: this.getAllPlayersExcept(id) }
+        this.dynamicState = { ...this.dynamicState, players: this.getAllPlayersExcept(id) }
     }
 
     setPlayerVelocity(id, velocity) {
@@ -93,8 +111,8 @@ class DynamicState {
             return;
         }
 
-        this._dynamicState = {
-            ...this._dynamicState,
+        this.dynamicState = {
+            ...this.dynamicState,
             players: [
                 ...this.getAllPlayersExcept(id),
                 {
@@ -130,16 +148,16 @@ class DynamicState {
         }
 
         this.getAllPlayersExcept(id).forEach(otherPlayer => { // prevent collision with players
-            collision = this.checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y) || collision;
+            collision = Utilities.getInstance().checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y) || collision;
         });
 
-        this._dynamicState.items.forEach(item => { // prevent collision with items
-            collision = this.checkCollision(player, item.pos.x, item.pos.y) || collision;
+        this.dynamicState.items.forEach(item => { // prevent collision with items
+            collision = Utilities.getInstance().checkCollision(player, item.pos.x, item.pos.y) || collision;
         });
 
         if (!collision) {
-            this._dynamicState = {
-                ...this._dynamicState,
+            this.dynamicState = {
+                ...this.dynamicState,
                 players: [
                     ...this.getAllPlayersExcept(id),
                     {
@@ -153,17 +171,6 @@ class DynamicState {
             }
         }
 
-    }
-
-    checkCollision(player, objectX, objectY) {
-        let collision = false;
-
-        if (player.pos.x + player.vel.x * PlayerSpeed === objectX &&
-            player.pos.y + player.vel.y * PlayerSpeed === objectY) {
-            collision = true;
-        }
-
-        return collision;
     }
 }
 
