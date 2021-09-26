@@ -31,7 +31,8 @@ class Player {
 
     private dynamicState: DynamicStateDto = {
         players: [],
-        items: []
+        items: [],
+        crawlers: []
     };
 
     constructor(private staticState: StaticStateDto) { }
@@ -44,6 +45,8 @@ class Player {
     }
 
     onDynamicStateChange(dynamicStateDto: DynamicStateDto): void {
+        console.log(dynamicStateDto);
+
         if (!this.dynamicState) {
             this.dynamicState = dynamicStateDto;
         } else {
@@ -61,6 +64,12 @@ class Player {
                 this.dynamicState = {
                     ...this.dynamicState,
                     items: dynamicStateDto.items
+                }
+            }
+            if (dynamicStateDto.hasOwnProperty('crawlers')) {
+                this.dynamicState = {
+                    ...this.dynamicState,
+                    crawlers: dynamicStateDto.crawlers
                 }
             }
         }

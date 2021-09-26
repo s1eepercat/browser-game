@@ -43,6 +43,7 @@ class PlayerHandler {
     onGameIteration() {
         this.client.emit('dynamicState', dynamicState.getPersonalPlayerState(this.client.id));
         dynamicState.updatePlayerPosition(this.client.id);
+        dynamicState.updateEnemeyPosition();
     }
 
     onPlayerInit(name) {

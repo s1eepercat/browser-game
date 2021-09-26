@@ -1,4 +1,14 @@
-const { PlayerSpeed, ItemAmount, MapWidth, MapHeight } = require('./consts/server-config.const');
+const {
+    PlayerSpeed,
+    ItemAmountPerPlayer,
+    MapWidth,
+    MapHeight,
+    SpawnX,
+    SpawnY,
+    SpawnLength,
+    CrawlersPerPlayer,
+    CrawlersSpawnDistance
+} = require('./consts/server-config.const');
 const { Utilities } = require('./helpers/utilities');
 
 class DynamicState {
@@ -18,9 +28,11 @@ class DynamicState {
         this.dynamicState = {
             players: [],
             items: [],
+            crawlers: []
         }
 
-        do { this.addItems(); } while (this.dynamicState.items.length < ItemAmount);
+        do { this.addItems(); } while (this.dynamicState.items.length < ItemAmountPerPlayer);
+        do { this.addEnemy('crawlers'); } while (this.dynamicState.crawlers.length < CrawlersPerPlayer);
     }
 
     getPlayerById(id) {
@@ -42,10 +54,14 @@ class DynamicState {
         };
 
         const players = this.getAllPlayersExcept(id)
-            .filter(player => Utilities.getInstance().isInVisibleDistance(currentPlayer, player.pos.x, player.pos.y))
+            .filter(player => Utilities.get().isInVisibleDistance(currentPlayer, player))
             .map(player => { return { name: player.name, pos: player.pos } });
 
-        const items = this.dynamicState.items.filter((item) => Utilities.getInstance().isInVisibleDistance(currentPlayer, item.pos.x, item.pos.y));
+        const items = this.dynamicState.items.filter(item => Utilities.get().isInVisibleDistance(currentPlayer, item));
+
+        const crawlers = this.dynamicState.crawlers
+            .filter(crawler => Utilities.get().isInVisibleDistance(currentPlayer, crawler))
+            .map(crawler => { return { pos: crawler.pos } });
 
         if (players.length) {
             state['players'] = players;
@@ -55,22 +71,26 @@ class DynamicState {
             state['items'] = items;
         }
 
+        if (crawlers.length) {
+            state['crawlers'] = crawlers;
+        }
+
         return state;
     }
 
     addPlayer(id, name) {
-        const newPlayer = { // init player object
+        const newPlayer = {
             id,
             name,
             pos: {
-                x: Math.floor(Math.random() * MapWidth),
-                y: Math.floor(Math.random() * MapHeight)
+                x: SpawnX + Math.floor(Math.random() * SpawnLength),
+                y: SpawnY + Math.floor(Math.random() * SpawnLength)
             },
             vel: { x: 0, y: 0 }
         };
 
         if (this.getAllPlayersExcept(id).length) {
-            this.getAllPlayersExcept(id).forEach(player => { // make sure player is not spawning inside another player
+            this.getAllPlayersExcept(id).forEach(player => {
                 if (player.pos.x === newPlayer.pos.x && player.pos.y === newPlayer.pos.y) {
                     return this.addPlayer(id, name);
                 }
@@ -82,22 +102,68 @@ class DynamicState {
 
     addItems() {
         do {
-            const newItem = { // init item object
+            const newItem = {
                 pos: {
                     x: Math.floor(Math.random() * MapWidth),
                     y: Math.floor(Math.random() * MapHeight)
                 }
             };
 
-            this.dynamicState.players.forEach(player => { // make sure item is not spawning inside a player
+            this.dynamicState.players.forEach(player => {
                 if (player.pos.x === newItem.pos.x && player.pos.y === newItem.pos.y) {
                     return this.addItems();
                 }
             });
 
+            this.dynamicState.items.forEach(item => {
+                if (item.pos.x === newItem.pos.x && item.pos.y === newItem.pos.y) {
+                    return this.addItems();
+                }
+            });
+
+            if (
+                (newItem.pos.x >= SpawnX && newItem.pos.x <= SpawnX + SpawnLength) &&
+                (newItem.pos.y >= SpawnY && newItem.pos.y <= SpawnY + SpawnLength)
+            ) {
+                return this.addItems();
+            }
+
             this.dynamicState = { ...this.dynamicState, items: [...this.dynamicState.items, newItem] }
 
-        } while (this.dynamicState.items.length < ItemAmount);
+        } while (this.dynamicState.items.length < ItemAmountPerPlayer);
+    }
+
+    addEnemy(enemy) {
+        if (enemy === 'crawlers') {
+            const crawler = {
+                pos: {
+                    x: Math.floor(Math.random() * MapWidth),
+                    y: Math.floor(Math.random() * MapHeight)
+                },
+                vel: { x: 0, y: 0 }
+            }
+
+            this.dynamicState.players.forEach(player => {
+                if (Utilities.get().isAtDistance(crawler, player, CrawlersSpawnDistance)) {
+                    return this.addEnemy('crawler');
+                }
+            });
+
+            this.dynamicState.items.forEach(item => {
+                if (item.pos.x === crawler.pos.x && item.pos.y === crawler.pos.y) {
+                    return this.addEnemy('crawler');
+                }
+            });
+
+            if (
+                (crawler.pos.x >= SpawnX && crawler.pos.x <= SpawnX + SpawnLength) &&
+                (crawler.pos.y >= SpawnY && crawler.pos.y <= SpawnY + SpawnLength)
+            ) {
+                return this.addEnemy('crawler');
+            }
+
+            this.dynamicState = { ...this.dynamicState, crawlers: [...this.dynamicState.crawlers, crawler] }
+        }
     }
 
     removePlayer(id) {
@@ -129,7 +195,7 @@ class DynamicState {
     updatePlayerPosition(id) {
         const player = this.getPlayerById(id);
 
-        if (player.vel.x === 0 && player.vel.y === 0) { // make sure player needs moving
+        if (player.vel.x === 0 && player.vel.y === 0) {
             return;
         }
 
@@ -137,22 +203,22 @@ class DynamicState {
         let xEdge;
         let yEdge;
 
-        if (player.pos.x + player.vel.x === MapWidth // prevent X movement out of the map
+        if (player.pos.x + player.vel.x === MapWidth
             || player.pos.x + player.vel.x === -1) {
             xEdge = true;
         }
 
-        if (player.pos.y + player.vel.y === MapHeight // prevent Y movement out of the map
+        if (player.pos.y + player.vel.y === MapHeight
             || player.pos.y + player.vel.y === -1) {
             yEdge = true;
         }
 
-        this.getAllPlayersExcept(id).forEach(otherPlayer => { // prevent collision with players
-            collision = Utilities.getInstance().checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y) || collision;
+        this.getAllPlayersExcept(id).forEach(otherPlayer => {
+            collision = Utilities.get().checkCollision(player, otherPlayer.pos.x, otherPlayer.pos.y) || collision;
         });
 
-        this.dynamicState.items.forEach(item => { // prevent collision with items
-            collision = Utilities.getInstance().checkCollision(player, item.pos.x, item.pos.y) || collision;
+        this.dynamicState.items.forEach(item => {
+            collision = Utilities.get().checkCollision(player, item.pos.x, item.pos.y) || collision;
         });
 
         if (!collision) {
@@ -170,7 +236,10 @@ class DynamicState {
                 ]
             }
         }
+    }
 
+    updateEnemeyPosition() {
+        // console.log('enemy moves...')
     }
 }
 

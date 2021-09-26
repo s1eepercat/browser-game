@@ -1,17 +1,16 @@
+import { SpawnLength, SpawnX, SpawnY } from "../api/consts/server-config.const";
 import { Colors } from "./enums/colors.enum";
-import { DynamicStateDto, ItemDto, PlayerDto } from "./models/dynamic-state-dto.model";
+import { CrawlerDto, DynamicStateDto, ItemDto, PlayerDto } from "./models/dynamic-state-dto.model";
 import { StaticStateDto } from "./models/static-state-dto.model";
 
 interface GameState extends StaticStateDto, DynamicStateDto { }
 
 export class Renderer {
     private static instance: typeof Renderer.prototype;
-
     public static getInstance(): typeof Renderer.prototype {
         if (!Renderer.instance) {
             Renderer.instance = new Renderer();
         }
-
         return Renderer.instance;
     }
 
@@ -29,21 +28,16 @@ export class Renderer {
     }
 
     renderGame(state: GameState): void {
+        const { playerX, playerY } = this.getPlayerPosition(state);
         this.renderWorld(state);
-        const { playerX, playerY } = this.renderPlayer(state);
+        this.renderSpawn(state, playerX, playerY);
+        this.renderPlayer(state, playerX, playerY);
         this.renderPlayers(state, playerX, playerY);
+        this.renderCrawlers(state, playerX, playerY);
         this.renderItems(state, playerX, playerY);
     }
 
-    private renderWorld(state: GameState): void {
-        this.ctx.fillStyle = Colors.BgColor;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = Colors.FloorColor;
-        this.ctx.fillRect(0, 0, state.map.mapWidth * state.gridSize, state.map.mapHeight * state.gridSize);
-    }
-
-    private renderPlayer(state: GameState): { playerX: number, playerY: number } {
+    private getPlayerPosition(state: GameState): { playerX: number, playerY: number } {
         const player = state.player;
 
         const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
@@ -68,17 +62,41 @@ export class Renderer {
             playerY = this.canvas.height / 2;
         }
 
+        return { playerX, playerY };
+    }
+
+    private renderWorld(state: GameState): void {
+        this.ctx.fillStyle = Colors.BgColor;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = Colors.FloorColor;
+        this.ctx.fillRect(0, 0, state.map.mapWidth * state.gridSize, state.map.mapHeight * state.gridSize);
+    }
+
+    private renderSpawn(state: GameState, playerX: number, playerY: number): void {
+        //Spawn
+        const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+        const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
+
+        const xGridDiff = SpawnX - state.player.pos.x;
+        const yGridDiff = SpawnY - state.player.pos.y;
+
+        if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
+            this.ctx.fillStyle = Colors.SpawnColor;
+            this.ctx.fillRect(playerX + (xGridDiff * state.gridSize), playerY + (yGridDiff * state.gridSize), SpawnLength * state.gridSize, SpawnLength * state.gridSize);
+        }
+    }
+
+    private renderPlayer(state: GameState, playerX: number, playerY: number): void {
         //name
         this.ctx.fillStyle = Colors.NameColor;
         this.ctx.font = "25px Arial";
-        const textWidth = this.ctx.measureText(player.name).width;
-        this.ctx.fillText(player.name, playerX - (textWidth / 2) + (state.gridSize / 2), playerY - state.gridSize / 2);
+        const textWidth = this.ctx.measureText(state.player.name).width;
+        this.ctx.fillText(state.player.name, playerX - (textWidth / 2) + (state.gridSize / 2), playerY - state.gridSize / 2);
 
         //character
         this.ctx.fillStyle = Colors.PlayerColor;
         this.ctx.fillRect(playerX, playerY, state.gridSize, state.gridSize);
-
-        return { playerX, playerY };
     }
 
     private renderPlayers(state: GameState, playerX: number, playerY: number): void {
@@ -101,6 +119,21 @@ export class Renderer {
                 this.ctx.fillRect(playerX + (xGridDiff * state.gridSize), playerY + (yGridDiff * state.gridSize), state.gridSize, state.gridSize);
             }
         })
+    }
+
+    private renderCrawlers(state: GameState, playerX: number, playerY: number): void {
+        const gridCanvasWidth = Math.ceil(this.canvas.width / state.gridSize);
+        const gridCanvasHeight = Math.ceil(this.canvas.height / state.gridSize);
+
+        state.crawlers.forEach((crawler: CrawlerDto) => {
+            const xGridDiff = crawler.pos.x - state.player.pos.x;
+            const yGridDiff = crawler.pos.y - state.player.pos.y;
+
+            if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
+                this.ctx.fillStyle = Colors.CrawlerColor;
+                this.ctx.fillRect(playerX + (xGridDiff * state.gridSize), playerY + (yGridDiff * state.gridSize), state.gridSize, state.gridSize);
+            }
+        });
     }
 
     private renderItems(state: GameState, playerX: number, playerY: number): void {

@@ -4,6 +4,7 @@ export interface DynamicStateDto {
     player?: PlayerDto;
     players?: PlayerDto[];
     items?: ItemDto[];
+    crawlers?: CrawlerDto[];
 }
 
 export interface ItemDto {
@@ -13,4 +14,8 @@ export interface ItemDto {
 export interface PlayerDto {
     name: string;
     pos: Position;
+}
+
+export interface CrawlerDto {
+    pos: Position
 }

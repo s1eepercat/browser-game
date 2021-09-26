@@ -1,13 +1,23 @@
 module.exports = {
-    /*Dynamic*/
+    /*Player settings-----------------------------*/
     PlayerSpeed: 1,
-    ItemAmount: 10,
-    VisibilityDistanceX: 48, // make dynamic?
+    VisibilityDistanceX: 48, // how distant should player be to get data from server
     VisibilityDistanceY: 21,
 
-    /*Static*/
+    /*Game settings-------------------------------*/
     FrameRate: 30,
     GridSize: 30,
-    MapWidth: 100,
-    MapHeight: 100
+    MapWidth: 140,
+    MapHeight: 140,
+    SpawnX: 3,
+    SpawnY: 3,
+    SpawnLength: 10,
+
+    /*Items---------------------------------------*/
+    ItemAmountPerPlayer: 10,
+
+    /*Enemies-------------------------------------*/
+    /*Crawlers*/
+    CrawlersPerPlayer: 10,
+    CrawlersSpawnDistance: 25
 }
