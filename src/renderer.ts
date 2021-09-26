@@ -1,4 +1,3 @@
-import * as e from "cors";
 import { SpawnSize, SpawnX, SpawnY, GridSize, MapWidth, MapHeight, CanvasW, CanvasH, CrosshairDistance, CrosshairOffset, CrosshairDashes, CrosshairDashGaps } from "../api/consts/config.const";
 import { Colors } from "./enums/colors.enum";
 import { CrawlerDto, DynamicStateDto, ItemDto, PlayerDto } from "./models/dynamic-state-dto.model";
@@ -35,7 +34,7 @@ export class Renderer {
 
     renderGame(state: GameState): void {
         const { playerX, playerY } = this.getPlayerPosition(state);
-        this.renderWorld(state);
+        this.renderWorld();
         this.renderSpawn(state, playerX, playerY);
         this.renderPlayer(state, playerX, playerY);
         this.renderPlayers(state, playerX, playerY);
@@ -71,19 +70,12 @@ export class Renderer {
         return { playerX, playerY };
     }
 
-    private renderWorld(state: GameState): void {
-        // this.ctx.fillStyle = Colors.BgColor;
-        // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // this.ctx.fillStyle = Colors.FloorColor;
-        // this.ctx.fillRect(0, 0, MapWidth * GridSize, MapHeight * GridSize);
-
+    private renderWorld(): void {
         this.ctx.fillStyle = Colors.FloorColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     private renderSpawn(state: GameState, playerX: number, playerY: number): void {
-        //Spawn
         const gridCanvasWidth = Math.ceil(this.canvas.width / GridSize);
         const gridCanvasHeight = Math.ceil(this.canvas.height / GridSize);
 
@@ -99,17 +91,13 @@ export class Renderer {
     private renderPlayer(state: GameState, playerX: number, playerY: number): void {
         const player = state.player;
 
-        //name
         this.ctx.fillStyle = Colors.NameColor;
         this.ctx.font = "25px Arial";
         const textWidth = this.ctx.measureText(player.name).width;
         this.ctx.fillText(player.name, playerX - (textWidth / 2) + (GridSize / 2), playerY - GridSize / 2);
 
-        //character
         this.ctx.fillStyle = Colors.PlayerColor;
         this.ctx.fillRect(playerX, playerY, GridSize, GridSize);
-
-        //crosshair
 
         if (!state.crawlers) {
             return;
@@ -159,24 +147,17 @@ export class Renderer {
             return;
         }
 
-        // const gridCanvasWidth = Math.ceil(this.canvas.width / GridSize);
-        // const gridCanvasHeight = Math.ceil(this.canvas.height / GridSize);
-
         state.players.forEach((player: PlayerDto) => {
             const xGridDiff = player.pos.x - state.player.pos.x;
             const yGridDiff = player.pos.y - state.player.pos.y;
 
-            // if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
-            //name
             this.ctx.fillStyle = Colors.NameColor;
             this.ctx.font = "25px Arial";
             const textWidth = this.ctx.measureText(player.name).width;
             this.ctx.fillText(player.name, (playerX + (xGridDiff * GridSize)) - (textWidth / 2) + (GridSize / 2), (playerY + (yGridDiff * GridSize)) - GridSize / 2);
 
-            //character
             this.ctx.fillStyle = Colors.PlayersColor;
             this.ctx.fillRect(playerX + (xGridDiff * GridSize), playerY + (yGridDiff * GridSize), GridSize, GridSize);
-            // }
         })
     }
 
@@ -185,17 +166,12 @@ export class Renderer {
             return;
         }
 
-        // const gridCanvasWidth = Math.ceil(this.canvas.width / GridSize);
-        // const gridCanvasHeight = Math.ceil(this.canvas.height / GridSize);
-
         state.crawlers.forEach((crawler: CrawlerDto) => {
             const xGridDiff = crawler.pos.x - state.player.pos.x;
             const yGridDiff = crawler.pos.y - state.player.pos.y;
 
-            // if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
             this.ctx.fillStyle = Colors.CrawlerColor;
             this.ctx.fillRect(playerX + (xGridDiff * GridSize), playerY + (yGridDiff * GridSize), GridSize, GridSize);
-            // }
         });
     }
 
@@ -204,17 +180,12 @@ export class Renderer {
             return;
         }
 
-        // const gridCanvasWidth = Math.ceil(this.canvas.width / GridSize);
-        // const gridCanvasHeight = Math.ceil(this.canvas.height / GridSize);
-
         state.items.forEach((item: ItemDto) => {
             const xGridDiff = item.pos.x - state.player.pos.x;
             const yGridDiff = item.pos.y - state.player.pos.y;
 
-            // if (Math.abs(xGridDiff) < gridCanvasWidth && Math.abs(yGridDiff) < gridCanvasHeight) {
             this.ctx.fillStyle = Colors.ItemColor;
             this.ctx.fillRect(playerX + (xGridDiff * GridSize), playerY + (yGridDiff * GridSize), GridSize, GridSize);
-            // }
         });
     }
 }
