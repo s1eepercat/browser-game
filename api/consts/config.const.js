@@ -1,8 +1,10 @@
 module.exports = {
     /*Player settings-----------------------------*/
     PlayerSpeed: 1,
-    VisibilityDistanceX: 48, // how distant should player be to get data from server
-    VisibilityDistanceY: 21,
+    CrosshairDistance: 20,
+    CrosshairOffset: 1.5,
+    CrosshairDashes: 5,
+    CrosshairDashGaps: 15,
 
     /*Game settings-------------------------------*/
     CanvasW: 0.7,

@@ -1,5 +1,5 @@
 export enum Colors {
-    BgColor = '#231f20',
+    CrosshairColor = '#231f20',
     FloorColor = '#93c09e',
     SpawnColor = '#767676',
     PlayerColor = '#006a4e',

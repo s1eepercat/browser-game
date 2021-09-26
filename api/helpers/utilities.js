@@ -1,4 +1,4 @@
-const { PlayerSpeed, VisibilityDistanceX, VisibilityDistanceY } = require('../consts/config.const');
+const { PlayerSpeed } = require('../consts/config.const');
 
 class Utilities {
     static instance;

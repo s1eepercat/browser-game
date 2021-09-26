@@ -1,4 +1,5 @@
-import { SpawnSize, SpawnX, SpawnY, GridSize, MapWidth, MapHeight, CanvasW, CanvasH } from "../api/consts/config.const";
+import * as e from "cors";
+import { SpawnSize, SpawnX, SpawnY, GridSize, MapWidth, MapHeight, CanvasW, CanvasH, CrosshairDistance, CrosshairOffset, CrosshairDashes, CrosshairDashGaps } from "../api/consts/config.const";
 import { Colors } from "./enums/colors.enum";
 import { CrawlerDto, DynamicStateDto, ItemDto, PlayerDto } from "./models/dynamic-state-dto.model";
 import { StaticStateDto } from "./models/static-state-dto.model";
@@ -23,7 +24,7 @@ export class Renderer {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d');
 
-        this.canvas.width = window.innerWidth * CanvasW;
+        this.canvas.width = window.innerWidth * CanvasW; // make changable?
         this.canvas.height = window.innerHeight * CanvasH;
 
         return {
@@ -96,15 +97,61 @@ export class Renderer {
     }
 
     private renderPlayer(state: GameState, playerX: number, playerY: number): void {
+        const player = state.player;
+
         //name
         this.ctx.fillStyle = Colors.NameColor;
         this.ctx.font = "25px Arial";
-        const textWidth = this.ctx.measureText(state.player.name).width;
-        this.ctx.fillText(state.player.name, playerX - (textWidth / 2) + (GridSize / 2), playerY - GridSize / 2);
+        const textWidth = this.ctx.measureText(player.name).width;
+        this.ctx.fillText(player.name, playerX - (textWidth / 2) + (GridSize / 2), playerY - GridSize / 2);
 
         //character
         this.ctx.fillStyle = Colors.PlayerColor;
         this.ctx.fillRect(playerX, playerY, GridSize, GridSize);
+
+        //crosshair
+
+        if (!state.crawlers) {
+            return;
+        } else {
+            state.crawlers.forEach(crawler => {
+                if (crawler.pos.x > player.pos.x && Math.abs(player.pos.x - crawler.pos.x) < CrosshairDistance && player.pos.y === crawler.pos.y) {
+                    this.ctx.strokeStyle = Colors.CrosshairColor;
+                    this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(playerX + CrosshairOffset * GridSize, playerY + GridSize / 2);
+                    this.ctx.lineTo(playerX + CrosshairDistance * GridSize, playerY + GridSize / 2);
+                    this.ctx.stroke();
+                }
+
+                if (crawler.pos.x < player.pos.x && Math.abs(player.pos.x - crawler.pos.x) < CrosshairDistance && player.pos.y === crawler.pos.y) {
+                    this.ctx.strokeStyle = Colors.CrosshairColor;
+                    this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(playerX - CrosshairOffset * GridSize + GridSize, playerY + GridSize / 2);
+                    this.ctx.lineTo(playerX - CrosshairDistance * GridSize + GridSize, playerY + GridSize / 2);
+                    this.ctx.stroke();
+                }
+
+                if (crawler.pos.y > player.pos.y && Math.abs(player.pos.y - crawler.pos.y) < CrosshairDistance && player.pos.x === crawler.pos.x) {
+                    this.ctx.strokeStyle = Colors.CrosshairColor;
+                    this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(playerX + GridSize / 2, playerY + CrosshairOffset * GridSize);
+                    this.ctx.lineTo(playerX + GridSize / 2, playerY + CrosshairDistance * GridSize);
+                    this.ctx.stroke();
+                }
+
+                if (crawler.pos.y < player.pos.y && Math.abs(player.pos.y - crawler.pos.y) < CrosshairDistance && player.pos.x === crawler.pos.x) {
+                    this.ctx.strokeStyle = Colors.CrosshairColor;
+                    this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(playerX + GridSize / 2, playerY - CrosshairOffset * GridSize + GridSize);
+                    this.ctx.lineTo(playerX + GridSize / 2, playerY - CrosshairDistance * GridSize + GridSize);
+                    this.ctx.stroke();
+                }
+            });
+        }
     }
 
     private renderPlayers(state: GameState, playerX: number, playerY: number): void {
