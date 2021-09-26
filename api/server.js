@@ -1,7 +1,7 @@
 const express = require('express');
 const { StaticState } = require('./static-state');
 const { DynamicState } = require('./dynamic-state');
-const { FrameRate } = require('./consts/server-config.const');
+const { FrameRate } = require('./consts/config.const');
 
 const app = express();
 const http = require('http').Server(app)
@@ -22,12 +22,14 @@ io.on('connection', (client) => new PlayerHandler(client).init());
 
 class PlayerHandler {
     interval;
+    config;
 
     constructor(client) { this.client = client }
 
     init() {
-        new Promise((resolve, reject) => this.client.on('playerInit', (name) => {
-            this.onPlayerInit(name) ? resolve() : reject()
+        new Promise((resolve, reject) => this.client.on('playerInit', (config) => {
+            this.config = config;
+            this.onPlayerInit() ? resolve() : reject()
         }))
             .then(() => {
                 this.client.emit('staticState', staticState.getSharedState(this.client.id));
@@ -37,17 +39,17 @@ class PlayerHandler {
 
                 this.interval = setInterval(() => this.onGameIteration(), 1000 / FrameRate);
             })
-            .catch(() => console.log('Could not add player...'));
+            .catch((err) => console.log(err));
     }
 
     onGameIteration() {
-        this.client.emit('dynamicState', dynamicState.getPersonalPlayerState(this.client.id));
+        this.client.emit('dynamicState', dynamicState.getPersonalPlayerState(this.client.id, this.config.canvasSize));
         dynamicState.updatePlayerPosition(this.client.id);
         dynamicState.updateEnemeyPosition();
     }
 
-    onPlayerInit(name) {
-        dynamicState.addPlayer(this.client.id, name);
+    onPlayerInit() {
+        dynamicState.addPlayer(this.client.id, this.config.name);
         return dynamicState.getPlayerById(this.client.id);
     }
 
@@ -56,7 +58,7 @@ class PlayerHandler {
     }
 
     onDisconnect() {
-        console.log('Player: "' + dynamicState.getPlayerById(this.client.id).name + '" diconnected at ' + new Date())
+        console.log('Player: "' + this.config.name + '" diconnected at ' + new Date())
 
         dynamicState.removePlayer(this.client.id);
         clearInterval(this.interval);

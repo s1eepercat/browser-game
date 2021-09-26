@@ -5,10 +5,10 @@ const {
     MapHeight,
     SpawnX,
     SpawnY,
-    SpawnLength,
+    SpawnSize,
     CrawlersPerPlayer,
     CrawlersSpawnDistance
-} = require('./consts/server-config.const');
+} = require('./consts/config.const');
 const { Utilities } = require('./helpers/utilities');
 
 class DynamicState {
@@ -43,7 +43,7 @@ class DynamicState {
         return this.dynamicState.players.filter(player => player.id !== id);
     }
 
-    getPersonalPlayerState(id) {
+    getPersonalPlayerState(id, canvasSize) {
         const currentPlayer = this.getPlayerById(id);
 
         let state = {
@@ -54,13 +54,13 @@ class DynamicState {
         };
 
         const players = this.getAllPlayersExcept(id)
-            .filter(player => Utilities.get().isInVisibleDistance(currentPlayer, player))
+            .filter(player => Utilities.get().isAtDistance(currentPlayer, player, canvasSize.gridW, canvasSize.gridH))
             .map(player => { return { name: player.name, pos: player.pos } });
 
-        const items = this.dynamicState.items.filter(item => Utilities.get().isInVisibleDistance(currentPlayer, item));
+        const items = this.dynamicState.items.filter(item => Utilities.get().isAtDistance(currentPlayer, item, canvasSize.gridW, canvasSize.gridH));
 
         const crawlers = this.dynamicState.crawlers
-            .filter(crawler => Utilities.get().isInVisibleDistance(currentPlayer, crawler))
+            .filter(crawler => Utilities.get().isAtDistance(currentPlayer, crawler, canvasSize.gridW, canvasSize.gridH))
             .map(crawler => { return { pos: crawler.pos } });
 
         if (players.length) {
@@ -83,8 +83,8 @@ class DynamicState {
             id,
             name,
             pos: {
-                x: SpawnX + Math.floor(Math.random() * SpawnLength),
-                y: SpawnY + Math.floor(Math.random() * SpawnLength)
+                x: SpawnX + Math.floor(Math.random() * SpawnSize),
+                y: SpawnY + Math.floor(Math.random() * SpawnSize)
             },
             vel: { x: 0, y: 0 }
         };
@@ -122,8 +122,8 @@ class DynamicState {
             });
 
             if (
-                (newItem.pos.x >= SpawnX && newItem.pos.x <= SpawnX + SpawnLength) &&
-                (newItem.pos.y >= SpawnY && newItem.pos.y <= SpawnY + SpawnLength)
+                (newItem.pos.x >= SpawnX && newItem.pos.x <= SpawnX + SpawnSize) &&
+                (newItem.pos.y >= SpawnY && newItem.pos.y <= SpawnY + SpawnSize)
             ) {
                 return this.addItems();
             }
@@ -144,7 +144,7 @@ class DynamicState {
             }
 
             this.dynamicState.players.forEach(player => {
-                if (Utilities.get().isAtDistance(crawler, player, CrawlersSpawnDistance)) {
+                if (Utilities.get().isAtDistance(crawler, player, CrawlersSpawnDistance, CrawlersSpawnDistance)) {
                     return this.addEnemy('crawler');
                 }
             });
@@ -156,8 +156,8 @@ class DynamicState {
             });
 
             if (
-                (crawler.pos.x >= SpawnX && crawler.pos.x <= SpawnX + SpawnLength) &&
-                (crawler.pos.y >= SpawnY && crawler.pos.y <= SpawnY + SpawnLength)
+                (crawler.pos.x >= SpawnX && crawler.pos.x <= SpawnX + SpawnSize) &&
+                (crawler.pos.y >= SpawnY && crawler.pos.y <= SpawnY + SpawnSize)
             ) {
                 return this.addEnemy('crawler');
             }

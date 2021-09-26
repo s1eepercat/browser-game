@@ -1,4 +1,4 @@
-const { MapWidth, MapHeight, GridSize } = require('./consts/server-config.const');
+// const { MapWidth, MapHeight, GridSize } = require('./consts/server-config.const');
 
 class StaticState {
     static instance;
@@ -15,11 +15,11 @@ class StaticState {
 
     iniState() {
         this.staticState = {
-            map: {
-                mapWidth: MapWidth,
-                mapHeight: MapHeight
-            },
-            gridSize: GridSize
+            // map: {
+            //     mapWidth: MapWidth,
+            //     mapHeight: MapHeight
+            // },
+            // gridSize: GridSize
         }
     }
 

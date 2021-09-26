@@ -1,4 +1,4 @@
-const { PlayerSpeed, VisibilityDistanceX, VisibilityDistanceY } = require('../consts/server-config.const');
+const { PlayerSpeed, VisibilityDistanceX, VisibilityDistanceY } = require('../consts/config.const');
 
 class Utilities {
     static instance;
@@ -11,12 +11,12 @@ class Utilities {
 
     constructor() { }
 
-    isInVisibleDistance(objectA, objectB) {
-        return Math.abs(objectA.pos.x - objectB.pos.x) < VisibilityDistanceX && Math.abs(objectA.pos.y - objectB.pos.y) < VisibilityDistanceY;
-    }
+    // isInVisibleDistance(objectA, objectB) {
+    //     return Math.abs(objectA.pos.x - objectB.pos.x) < VisibilityDistanceX && Math.abs(objectA.pos.y - objectB.pos.y) < VisibilityDistanceY;
+    // }
 
-    isAtDistance(objectA, objectB, distance) {
-        return Math.abs(objectA.pos.x - objectB.pos.x) < distance && Math.abs(objectA.pos.y - objectB.pos.y) < distance;
+    isAtDistance(objectA, objectB, distanceX, distanceY) {
+        return Math.abs(objectA.pos.x - objectB.pos.x) < distanceX && Math.abs(objectA.pos.y - objectB.pos.y) < distanceY;
     }
 
     checkCollision(player, objectX, objectY) {

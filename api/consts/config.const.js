@@ -5,13 +5,15 @@ module.exports = {
     VisibilityDistanceY: 21,
 
     /*Game settings-------------------------------*/
+    CanvasW: 0.7,
+    CanvasH: 0.8,
     FrameRate: 30,
     GridSize: 30,
     MapWidth: 140,
     MapHeight: 140,
     SpawnX: 3,
     SpawnY: 3,
-    SpawnLength: 10,
+    SpawnSize: 10,
 
     /*Items---------------------------------------*/
     ItemAmountPerPlayer: 10,
