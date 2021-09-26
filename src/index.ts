@@ -41,6 +41,7 @@ class Player {
     }
 
     onDynamicStateChange(dynamicStateDto: DynamicStateDto): void {
+        console.log(dynamicStateDto);
         requestAnimationFrame(() => this.renderer.renderGame({ ...this.staticState, ...dynamicStateDto }));
     }
 }

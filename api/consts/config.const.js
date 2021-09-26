@@ -22,6 +22,6 @@ module.exports = {
 
     /*Enemies-------------------------------------*/
     /*Crawlers*/
-    CrawlersPerPlayer: 10,
+    CrawlersPerPlayer: 150,
     CrawlersSpawnDistance: 25
 }

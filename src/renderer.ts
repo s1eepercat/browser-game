@@ -99,11 +99,15 @@ export class Renderer {
         this.ctx.fillStyle = Colors.PlayerColor;
         this.ctx.fillRect(playerX, playerY, GridSize, GridSize);
 
-        if (!state.crawlers) {
+        if (!state.crawlers || state.player.pos.x >= SpawnX && state.player.pos.x <= SpawnX + SpawnSize && state.player.pos.y >= SpawnY && state.player.pos.y <= SpawnY + SpawnSize) {
             return;
         } else {
             state.crawlers.forEach(crawler => {
-                if (crawler.pos.x > player.pos.x && Math.abs(player.pos.x - crawler.pos.x) < CrosshairDistance && player.pos.y === crawler.pos.y) {
+                if (Math.abs(player.pos.x - crawler.pos.x) > CrosshairDistance && Math.abs(player.pos.y - crawler.pos.y) > CrosshairDistance) {
+                    return;
+                }
+
+                if (crawler.pos.x > player.pos.x && player.pos.y === crawler.pos.y) {
                     this.ctx.strokeStyle = Colors.CrosshairColor;
                     this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
                     this.ctx.beginPath();
@@ -112,7 +116,7 @@ export class Renderer {
                     this.ctx.stroke();
                 }
 
-                if (crawler.pos.x < player.pos.x && Math.abs(player.pos.x - crawler.pos.x) < CrosshairDistance && player.pos.y === crawler.pos.y) {
+                if (crawler.pos.x < player.pos.x && player.pos.y === crawler.pos.y) {
                     this.ctx.strokeStyle = Colors.CrosshairColor;
                     this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
                     this.ctx.beginPath();
@@ -121,7 +125,7 @@ export class Renderer {
                     this.ctx.stroke();
                 }
 
-                if (crawler.pos.y > player.pos.y && Math.abs(player.pos.y - crawler.pos.y) < CrosshairDistance && player.pos.x === crawler.pos.x) {
+                if (crawler.pos.y > player.pos.y && player.pos.x === crawler.pos.x) {
                     this.ctx.strokeStyle = Colors.CrosshairColor;
                     this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
                     this.ctx.beginPath();
@@ -130,7 +134,7 @@ export class Renderer {
                     this.ctx.stroke();
                 }
 
-                if (crawler.pos.y < player.pos.y && Math.abs(player.pos.y - crawler.pos.y) < CrosshairDistance && player.pos.x === crawler.pos.x) {
+                if (crawler.pos.y < player.pos.y && player.pos.x === crawler.pos.x) {
                     this.ctx.strokeStyle = Colors.CrosshairColor;
                     this.ctx.setLineDash([CrosshairDashes, CrosshairDashGaps])
                     this.ctx.beginPath();
